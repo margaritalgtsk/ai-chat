@@ -2,21 +2,25 @@ import styles from './Chat.module.css';
 import Sidebar from './components/Sidebar';
 import MessageInput from './components/MessageInput';
 import MessageList from './components/MessageList';
-import { useChatSessions } from './hooks/useChatSessions';
 import { useChatStreaming } from './hooks/useChatStreaming';
+import { useAppDispatch, useAppSelector } from './store/hooks';
+import {
+  createNewChat,
+  selectActiveSession,
+  updateActiveSessionMessages,
+} from './store/chatSlice';
 
 const Chat = () => {
-  const {
-    sessions,
-    activeSessionId,
-    activeSession,
-    updateActiveSessionMessages,
-    createNewChat,
-  } = useChatSessions();
+  const dispatch = useAppDispatch();
+
+  const activeSessionId = useAppSelector((state) => state.chat.activeSessionId);
+  const sessions = useAppSelector((state) => state.chat.sessions);
+  const activeSession = useAppSelector(selectActiveSession);
 
   const { input, setInput, sendMessage } = useChatStreaming({
     messages: activeSession?.messages || [],
-    updateActiveSessionMessages,
+    updateActiveSessionMessages: (messages) =>
+      dispatch(updateActiveSessionMessages(messages)),
   });
 
   return (
@@ -24,7 +28,7 @@ const Chat = () => {
       <Sidebar
         sessions={sessions}
         activeSessionId={activeSessionId}
-        createNewChat={createNewChat}
+        createNewChat={() => dispatch(createNewChat())}
       />
       <div className={styles.chatContainer}>
         <MessageList messages={activeSession?.messages || []} />

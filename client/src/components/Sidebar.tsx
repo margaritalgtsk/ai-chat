@@ -1,6 +1,8 @@
 import type React from 'react';
 import type { ChatSession } from '../types';
 import styles from '../Chat.module.css';
+import { useAppDispatch } from '../store/hooks';
+import { selectSession } from '../store/chatSlice';
 
 interface SidebarProps {
   sessions: ChatSession[];
@@ -12,6 +14,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeSessionId,
   createNewChat,
 }) => {
+  console.log('Sidebar sessions:', sessions);
+  console.log('Active Session ID:', activeSessionId);
+
+  const dispatch = useAppDispatch();
+
   return (
     <div className={styles.sidebar}>
       <h2>Chat Sessions</h2>
@@ -22,6 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {sessions.map((session) => (
           <div
             key={session.id}
+            onClick={() => dispatch(selectSession(session.id))}
             className={`${styles.sessionItem} ${session.id === activeSessionId ? styles.activeSession : ''}`}
           >
             {session.messages[0]?.content.slice(0, 20) || 'Current Session'}
