@@ -14,9 +14,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeSessionId,
   createNewChat,
 }) => {
-  console.log('Sidebar sessions:', sessions);
-  console.log('Active Session ID:', activeSessionId);
-
   const dispatch = useAppDispatch();
 
   return (
