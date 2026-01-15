@@ -27,12 +27,16 @@ export const chatSlice = createSlice({
       state.activeSessionId = newSession.id;
       saveChatHistory(state.sessions);
     },
-    updateActiveSessionMessages: (state, action: PayloadAction<Message[]>) => {
-      const updated = state.sessions.map((s) =>
-        s.id === state.activeSessionId ? { ...s, messages: action.payload } : s
+    updateSessionMessages: (
+      state,
+      action: PayloadAction<{ sessionId: string; messages: Message[] }>
+    ) => {
+      const session = state.sessions.find(
+        (s) => s.id === action.payload.sessionId
       );
-      state.sessions = updated;
-      saveChatHistory(state.sessions);
+      if (!session) return;
+      session.messages = action.payload.messages;
+      saveChatHistory(state.sessions); //side effect - createAsyncThunk / middleware / listenerMiddleware
     },
     selectSession: (state, action: PayloadAction<string>) => {
       state.activeSessionId = action.payload;
@@ -46,6 +50,6 @@ export const selectActiveSession = createSelector(
   (sessions, activeSessionId) =>
     sessions.find((session) => session.id === activeSessionId)
 );
-export const { createNewChat, updateActiveSessionMessages, selectSession } =
+export const { createNewChat, updateSessionMessages, selectSession } =
   chatSlice.actions;
 export const chatReducer = chatSlice.reducer;

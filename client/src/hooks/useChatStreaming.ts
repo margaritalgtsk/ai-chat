@@ -4,21 +4,32 @@ import { extractTokens } from '../utils';
 
 export function useChatStreaming({
   messages,
-  updateActiveSessionMessages,
+  updateSessionMessages,
 }: {
   messages: Message[];
-  updateActiveSessionMessages: (newMessages: Message[]) => void;
+  updateSessionMessages: ({
+    sessionId,
+    messages,
+  }: {
+    sessionId: string;
+    messages: Message[];
+  }) => void;
 }) {
   const [input, setInput] = useState('');
+  console.log(input);
 
-  const sendMessage = async () => {
+  const sendMessage = async (sessionId: string) => {
     if (!input.trim()) return;
+    setInput('');
 
     const userMessage: Message = { role: 'user', content: input };
-    updateActiveSessionMessages([...messages, userMessage]);
+    updateSessionMessages({ sessionId, messages: [...messages, userMessage] });
 
     const aiMessage: Message = { role: 'assistant', content: '' };
-    updateActiveSessionMessages([...messages, userMessage, aiMessage]);
+    updateSessionMessages({
+      sessionId,
+      messages: [...messages, userMessage, aiMessage],
+    });
 
     const response = await fetch('http://localhost:3001/api/chat', {
       method: 'POST',
@@ -42,15 +53,16 @@ export function useChatStreaming({
 
       if (token) {
         assistantContent += token; //new
-        updateActiveSessionMessages([
-          ...messages,
-          userMessage,
-          { role: 'assistant', content: assistantContent },
-        ]);
+        updateSessionMessages({
+          sessionId,
+          messages: [
+            ...messages,
+            userMessage,
+            { role: 'assistant', content: assistantContent },
+          ],
+        });
       }
     }
-
-    setInput('');
   };
 
   return { input, setInput, sendMessage };

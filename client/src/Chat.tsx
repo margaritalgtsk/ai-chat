@@ -7,8 +7,9 @@ import { useAppDispatch, useAppSelector } from './store/hooks';
 import {
   createNewChat,
   selectActiveSession,
-  updateActiveSessionMessages,
+  updateSessionMessages,
 } from './store/chatSlice';
+import type { Message } from './types';
 
 const Chat = () => {
   const dispatch = useAppDispatch();
@@ -17,11 +18,25 @@ const Chat = () => {
   const sessions = useAppSelector((state) => state.chat.sessions);
   const activeSession = useAppSelector(selectActiveSession);
 
+  const updateMessagesForSession = ({
+    sessionId,
+    messages,
+  }: {
+    sessionId: string;
+    messages: Message[];
+  }) => {
+    dispatch(updateSessionMessages({ sessionId, messages }));
+  };
+
   const { input, setInput, sendMessage } = useChatStreaming({
     messages: activeSession?.messages || [],
-    updateActiveSessionMessages: (messages) =>
-      dispatch(updateActiveSessionMessages(messages)),
+    updateSessionMessages: updateMessagesForSession,
   });
+
+  const handleSendMessage = () => {
+    if (!activeSessionId) return;
+    sendMessage(activeSessionId);
+  };
 
   return (
     <div className={styles.container}>
@@ -35,7 +50,7 @@ const Chat = () => {
         <MessageInput
           input={input}
           setInput={setInput}
-          sendMessage={sendMessage}
+          sendMessage={handleSendMessage}
         />
       </div>
     </div>
