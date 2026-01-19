@@ -5,11 +5,13 @@ interface MessageInputProps {
   input: string;
   setInput: (value: string) => void;
   sendMessage: () => void;
+  isStreaming: boolean;
 }
 const MessageInput: React.FC<MessageInputProps> = ({
   input,
   setInput,
   sendMessage,
+  isStreaming,
 }) => {
   return (
     <div className={styles.inputRow}>
@@ -19,7 +21,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
         onChange={(e) => setInput(e.target.value)}
         placeholder="Write a message..."
       />
-      <button className={styles.button} onClick={sendMessage}>
+      <button
+        className={styles.button}
+        onClick={sendMessage}
+        disabled={isStreaming}
+      >
         Send
       </button>
     </div>

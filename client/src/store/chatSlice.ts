@@ -27,6 +27,20 @@ export const chatSlice = createSlice({
       state.activeSessionId = newSession.id;
       saveChatHistory(state.sessions);
     },
+    updateStatusSession: (
+      state,
+      action: PayloadAction<{
+        sessionId: string;
+        status: 'idle' | 'streaming' | 'error';
+      }>
+    ) => {
+      const session = state.sessions.find(
+        (s) => s.id === action.payload.sessionId
+      );
+      if (!session) return;
+      session.status = action.payload.status;
+      saveChatHistory(state.sessions); //side effect
+    },
     updateSessionMessages: (
       state,
       action: PayloadAction<{ sessionId: string; messages: Message[] }>
@@ -50,6 +64,10 @@ export const selectActiveSession = createSelector(
   (sessions, activeSessionId) =>
     sessions.find((session) => session.id === activeSessionId)
 );
-export const { createNewChat, updateSessionMessages, selectSession } =
-  chatSlice.actions;
+export const {
+  createNewChat,
+  updateSessionMessages,
+  updateStatusSession,
+  selectSession,
+} = chatSlice.actions;
 export const chatReducer = chatSlice.reducer;

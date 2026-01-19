@@ -97,6 +97,12 @@
   background: #005fc7;
 }
 
+.button:disabled {
+  background: #dbdee0;
+  color: #1c1c1c;
+  cursor: not-allowed;
+}
+
 .sessionItem {
   padding: 8px 10px;
   margin-bottom: 5px;

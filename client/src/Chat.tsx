@@ -10,6 +10,7 @@ import {
   updateSessionMessages,
 } from './store/chatSlice';
 import type { Message } from './types';
+import { useEffect } from 'react';
 
 const Chat = () => {
   const dispatch = useAppDispatch();
@@ -28,7 +29,7 @@ const Chat = () => {
     dispatch(updateSessionMessages({ sessionId, messages }));
   };
 
-  const { input, setInput, sendMessage } = useChatStreaming({
+  const { input, setInput, sendMessage, abortStreaming } = useChatStreaming({
     messages: activeSession?.messages || [],
     updateSessionMessages: updateMessagesForSession,
   });
@@ -37,6 +38,11 @@ const Chat = () => {
     if (!activeSessionId) return;
     sendMessage(activeSessionId);
   };
+
+  useEffect(() => {
+    abortStreaming();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSessionId]);
 
   return (
     <div className={styles.container}>
@@ -51,6 +57,7 @@ const Chat = () => {
           input={input}
           setInput={setInput}
           sendMessage={handleSendMessage}
+          isStreaming={activeSession?.status === 'streaming'}
         />
       </div>
     </div>
