@@ -6,5 +6,5 @@ export interface Message {
 export interface ChatSession {
   id: string;
   messages: Message[];
-  status?: 'idle' | 'streaming' | 'error';
+  status?: 'idle' | 'streaming' | 'abort' | 'error';
 }

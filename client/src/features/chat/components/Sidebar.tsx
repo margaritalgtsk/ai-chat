@@ -1,8 +1,8 @@
 import type React from 'react';
-import type { ChatSession } from '../types';
-import styles from '../Chat.module.css';
-import { useAppDispatch } from '../store/hooks';
-import { selectSession } from '../store/chatSlice';
+import styles from '../../../shared/styles/Chat.module.css';
+import type { ChatSession } from '../../../types';
+import { useAppDispatch } from '../../../store/hooks';
+import { selectSession } from '../chatSlice';
 
 interface SidebarProps {
   sessions: ChatSession[];

@@ -1,6 +1,6 @@
 import type React from 'react';
-import styles from '../Chat.module.css';
-import type { Message } from '../types';
+import styles from '../../../shared/styles/Chat.module.css';
+import type { Message } from '../../../types';
 
 interface MessageListProps {
   messages: Message[];

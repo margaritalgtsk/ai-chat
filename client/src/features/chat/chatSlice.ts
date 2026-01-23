@@ -3,9 +3,11 @@ import {
   createSlice,
   type PayloadAction,
 } from '@reduxjs/toolkit';
-import type { ChatSession, Message } from '../types';
-import { loadChatHistory, saveChatHistory } from '../storage';
+
 import { v4 as uuidv4 } from 'uuid';
+import type { ChatSession, Message } from '../../types';
+import { loadChatHistory } from '../../storage';
+import { sendMessageThunk } from './chatThunks';
 
 interface ChatState {
   sessions: ChatSession[];
@@ -25,21 +27,6 @@ export const chatSlice = createSlice({
       const newSession = { id: uuidv4(), messages: [] };
       state.sessions.unshift(newSession);
       state.activeSessionId = newSession.id;
-      saveChatHistory(state.sessions);
-    },
-    updateStatusSession: (
-      state,
-      action: PayloadAction<{
-        sessionId: string;
-        status: 'idle' | 'streaming' | 'error';
-      }>
-    ) => {
-      const session = state.sessions.find(
-        (s) => s.id === action.payload.sessionId
-      );
-      if (!session) return;
-      session.status = action.payload.status;
-      saveChatHistory(state.sessions); //side effect
     },
     updateSessionMessages: (
       state,
@@ -50,11 +37,38 @@ export const chatSlice = createSlice({
       );
       if (!session) return;
       session.messages = action.payload.messages;
-      saveChatHistory(state.sessions); //side effect - createAsyncThunk / middleware / listenerMiddleware
     },
     selectSession: (state, action: PayloadAction<string>) => {
       state.activeSessionId = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(sendMessageThunk.pending, (state, action) => {
+        const session = state.sessions.find(
+          (s) => s.id === action.meta.arg.sessionId
+        );
+        if (!session) return;
+        session.status = 'streaming';
+      })
+      .addCase(sendMessageThunk.fulfilled, (state, action) => {
+        const session = state.sessions.find(
+          (s) => s.id === action.meta.arg.sessionId
+        );
+        if (!session) return;
+        session.status = 'idle';
+      })
+      .addCase(sendMessageThunk.rejected, (state, action) => {
+        const session = state.sessions.find(
+          (s) => s.id === action.meta.arg.sessionId
+        );
+        if (!session) return;
+        if (action.payload === 'aborted') {
+          session.status = 'abort';
+        } else {
+          session.status = 'error';
+        }
+      });
   },
 });
 
@@ -64,10 +78,6 @@ export const selectActiveSession = createSelector(
   (sessions, activeSessionId) =>
     sessions.find((session) => session.id === activeSessionId)
 );
-export const {
-  createNewChat,
-  updateSessionMessages,
-  updateStatusSession,
-  selectSession,
-} = chatSlice.actions;
+export const { createNewChat, updateSessionMessages, selectSession } =
+  chatSlice.actions;
 export const chatReducer = chatSlice.reducer;
