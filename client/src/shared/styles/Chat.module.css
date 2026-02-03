@@ -70,6 +70,14 @@
   background-color: #f5f5f5;
 }
 
+.retry {
+  color: #999;
+}
+
+.error {
+  color: #e5533d;
+}
+
 .inputRow {
   display: flex;
   gap: 10px;

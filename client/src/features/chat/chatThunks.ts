@@ -1,77 +1,115 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { RootState } from '../../store/store';
-import { updateSessionMessages } from './chatSlice';
+import {
+  addMessages,
+  finalizeAssistantMessage,
+  markAssistantMessageAborted,
+  markAssistantMessageError,
+  setAssistantMessageRetry,
+  updateAssistantMessage,
+} from './chatSlice';
 import type { Message } from '../../types';
 import {
   abortChatStream,
   createChatAbortController,
 } from './chatAbortControllers';
-import { extractTokens } from './utils/extractTokens';
-import { isAbortError } from './utils/isAbortError';
+import { v4 as uuidv4 } from 'uuid';
+import { getChatErrorType } from './utils/getChatErrorType';
+import { streamChatResponse } from './chatStreamResponse';
+import { MAX_RETRIES } from './constants';
 
 export const sendMessageThunk = createAsyncThunk<
   void,
   { sessionId: string; text: string },
   { state: RootState } // type for getState()
 >('chat/sendMessage', async ({ sessionId, text }, thunkApi) => {
-  const state = thunkApi.getState();
-  const messages =
-    state.chat.sessions.find((s) => s.id === sessionId)?.messages || [];
+  //const state = thunkApi.getState();
 
   const controller = createChatAbortController(sessionId);
-
-  const userMessage: Message = { role: 'user', content: text };
-  const aiMessage: Message = { role: 'assistant', content: '' };
+  const userMessage: Message = { id: uuidv4(), role: 'user', content: text };
+  const aiMessage: Message = {
+    id: uuidv4(),
+    role: 'assistant',
+    content: '',
+    status: 'streaming',
+  };
 
   thunkApi.dispatch(
-    updateSessionMessages({
+    addMessages({
       sessionId,
-      messages: [...messages, userMessage, aiMessage],
+      messages: [userMessage, aiMessage],
     })
   );
-
   try {
-    const response = await fetch('http://localhost:3001/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text }),
-      //signal: thunkApi.signal,
-      signal: controller.signal,
-    });
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        let assistantContent = '';
 
-    const reader = response.body?.getReader();
-    if (!reader) return;
+        await streamChatResponse({
+          text,
+          signal: controller.signal,
+          onChunk: (chunk) => {
+            assistantContent += chunk;
+            thunkApi.dispatch(
+              updateAssistantMessage({
+                sessionId,
+                messageId: aiMessage.id,
+                content: assistantContent,
+              })
+            );
+            thunkApi.dispatch(
+              finalizeAssistantMessage({
+                sessionId,
+                messageId: aiMessage.id,
+              })
+            );
+          },
+        });
+        return;
+      } catch (error) {
+        const errorType = getChatErrorType(error);
 
-    const decoder = new TextDecoder();
+        if (errorType === 'abort') {
+          throw error;
+        }
 
-    let assistantContent = '';
+        if (attempt < MAX_RETRIES) {
+          thunkApi.dispatch(
+            setAssistantMessageRetry({
+              sessionId,
+              messageId: aiMessage.id,
+              attempt: attempt + 1,
+              max: MAX_RETRIES,
+            })
+          );
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+          await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt)));
 
-      const raw = decoder.decode(value, { stream: true });
-      const token = extractTokens(raw);
-
-      if (token) {
-        assistantContent += token;
-        thunkApi.dispatch(
-          updateSessionMessages({
-            sessionId,
-            messages: [
-              ...messages,
-              userMessage,
-              { role: 'assistant', content: assistantContent },
-            ],
-          })
-        );
+          continue;
+        }
+        throw error;
       }
     }
   } catch (error) {
-    if (isAbortError(error)) {
-      return thunkApi.rejectWithValue('aborted');
+    const errorType = getChatErrorType(error);
+
+    if (errorType === 'abort') {
+      thunkApi.dispatch(
+        markAssistantMessageAborted({
+          sessionId,
+          messageId: aiMessage.id,
+        })
+      );
+    } else {
+      thunkApi.dispatch(
+        markAssistantMessageError({
+          sessionId,
+          messageId: aiMessage.id,
+          errorType,
+        })
+      );
     }
-    throw error;
+    throw error; //just for rejected action handling
   } finally {
     abortChatStream(sessionId);
   }

@@ -11,7 +11,7 @@ export function loadChatHistory(): ChatSession[] {
   let sessions = data ? JSON.parse(data) : [];
 
   if (sessions.length === 0) {
-    sessions = [{ id: 'default', messages: [], status: 'idle' }];
+    sessions = [{ id: 'default', messages: [] }];
     localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(sessions));
   }
   return sessions;

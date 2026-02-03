@@ -4,11 +4,7 @@ import { abortChatStream } from './chatAbortControllers';
 import type { RootState } from '../../store/store';
 import { sendMessageThunk } from './chatThunks';
 import { saveChatHistory } from '../../storage';
-import {
-  createNewChat,
-  selectSession,
-  updateSessionMessages,
-} from './chatSlice';
+import { createNewChat, selectSession } from './chatSlice';
 
 export const chatListener = createListenerMiddleware();
 
@@ -27,7 +23,6 @@ chatListener.startListening({
 chatListener.startListening({
   matcher: isAnyOf(
     createNewChat,
-    updateSessionMessages,
     sendMessageThunk.fulfilled,
     sendMessageThunk.rejected
   ),
