@@ -1,0 +1,42 @@
+.devPanel {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  width: 320px;
+  max-height: 50vh;
+  overflow-y: auto;
+
+  background: #0f172a; /* slate-900 */
+  color: #e5e7eb; /* gray-200 */
+  font-size: 12px;
+
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+
+  z-index: 9999;
+}
+
+.devPanel h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #93c5fd; /* blue-300 */
+}
+
+.stream {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 6px;
+
+  background: #020617; /* slate-950 */
+  border: 1px solid #1e293b; /* slate-800 */
+}
+
+.stream div {
+  line-height: 1.4;
+}
+
+.stream b {
+  color: #a5b4fc; /* indigo-300 */
+}

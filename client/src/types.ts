@@ -17,6 +17,7 @@ export interface Message {
     max: number;
   };
   errorType?: ChatErrorType;
+  correlationId?: string;
 }
 
 export interface ChatSession {
