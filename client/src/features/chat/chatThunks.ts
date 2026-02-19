@@ -60,7 +60,7 @@ export const sendMessageThunk = createAsyncThunk<
   });
 
   try {
-    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    for (let attempt = 0; attempt <= 1; attempt++) {
       try {
         let assistantContent = '';
 

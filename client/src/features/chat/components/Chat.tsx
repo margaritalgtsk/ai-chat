@@ -3,7 +3,11 @@ import Sidebar from './Sidebar';
 import MessageInput from './MessageInput';
 import MessageList from './MessageList';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { createNewChat, selectActiveSession } from '../chatSlice';
+import {
+  createNewChat,
+  selectActiveSession,
+  selectSessionStatus,
+} from '../chatSlice';
 
 const Chat = () => {
   const dispatch = useAppDispatch();
@@ -11,6 +15,9 @@ const Chat = () => {
   const activeSessionId = useAppSelector((state) => state.chat.activeSessionId);
   const sessions = useAppSelector((state) => state.chat.sessions);
   const activeSession = useAppSelector(selectActiveSession);
+  const activeSessionStatus = useAppSelector((state) =>
+    selectSessionStatus(state, activeSessionId || '')
+  );
 
   return (
     <div className={styles.container}>
@@ -23,7 +30,7 @@ const Chat = () => {
         <MessageList messages={activeSession?.messages || []} />
         <MessageInput
           activeSessionId={activeSessionId}
-          isStreaming={activeSession?.status === 'streaming'}
+          isStreaming={activeSessionStatus === 'streaming'}
         />
       </div>
     </div>

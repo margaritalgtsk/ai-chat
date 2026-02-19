@@ -4,6 +4,8 @@ type ActiveStream = {
   correlationId: string;
   startedAt: number;
   retryAttempt: number;
+  status?: 'active' | 'ended' | 'aborted';
+  endedAt?: number;
 };
 
 const activeStreams = new Map<string, ActiveStream>();
@@ -11,6 +13,7 @@ const activeStreams = new Map<string, ActiveStream>();
 
 export const streamRegistry = {
   start(stream: ActiveStream) {
+    stream.status = 'active';
     activeStreams.set(stream.correlationId, stream);
   },
 
@@ -22,11 +25,21 @@ export const streamRegistry = {
   },
 
   end(correlationId: string) {
-    activeStreams.delete(correlationId);
+    //activeStreams.delete(correlationId);
+    const stream = activeStreams.get(correlationId);
+    if (stream) {
+      stream.status = 'ended';
+      stream.endedAt = Date.now();
+    }
   },
 
   abort(correlationId: string) {
-    activeStreams.delete(correlationId);
+    //activeStreams.delete(correlationId);
+    const stream = activeStreams.get(correlationId);
+    if (stream) {
+      stream.status = 'aborted';
+      stream.endedAt = Date.now();
+    }
   },
 
   list() {

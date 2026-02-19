@@ -17,3 +17,7 @@ build/
 
 # OS
 .DS_Store
+
+# server secrets
+server/index-open-ai.js
+server/index-hf-ai.js

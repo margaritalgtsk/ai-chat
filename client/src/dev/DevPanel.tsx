@@ -14,8 +14,12 @@ export const DevPanel = () => {
           <div>session: {s.sessionId}</div>
           <div>message: {s.messageId}</div>
           <div>retry: {s.retryAttempt}</div>
+          <div>status: {s.status || 'active'}</div>
           <div>
-            alive for: {Math.round((date.getTime() - s.startedAt) / 1000)}s
+            alive for:{' '}
+            {Math.round(((s.endedAt ?? date.getTime()) - s.startedAt) / 1000)}s
+            {/*             alive for: {Math.round((date.getTime() - s.startedAt) / 1000)}s
+             */}{' '}
           </div>
         </div>
       ))}
