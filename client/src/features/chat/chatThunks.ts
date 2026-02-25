@@ -5,6 +5,7 @@ import {
   finalizeAssistantMessage,
   markAssistantMessageAborted,
   markAssistantMessageError,
+  selectActiveSession,
   setAssistantMessageRetry,
   updateAssistantMessage,
 } from './chatSlice';
@@ -25,8 +26,20 @@ export const sendMessageThunk = createAsyncThunk<
   { sessionId: string; text: string },
   { state: RootState } // type for getState()
 >('chat/sendMessage', async ({ sessionId, text }, thunkApi) => {
-  //const state = thunkApi.getState();
   const correlationId = uuidv4();
+
+  const state = thunkApi.getState();
+  const activeSession = selectActiveSession(state);
+  const history = activeSession?.messages ?? [];
+
+  // не берём последнее сообщение, если оно от assistant
+  const historyWithoutLastAssistant =
+    history.length > 0 && history[history.length - 1].role === 'assistant'
+      ? history.slice(0, -1)
+      : history;
+
+  // берём только последние 10
+  const historyForAgent = historyWithoutLastAssistant.slice(-10);
 
   const controller = createChatAbortController(sessionId);
   const userMessage: Message = { id: uuidv4(), role: 'user', content: text };
@@ -67,6 +80,7 @@ export const sendMessageThunk = createAsyncThunk<
         await streamChatResponse({
           text,
           signal: controller.signal,
+          history: historyForAgent,
           correlationId,
           onChunk: (chunk) => {
             assistantContent += chunk;

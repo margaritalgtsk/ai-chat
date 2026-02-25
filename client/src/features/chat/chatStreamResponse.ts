@@ -1,16 +1,19 @@
 import { runAgent } from '../../agent/agentRunner';
 import { log } from '../../observability/logger';
 import { callLLM } from '../../services/llm/callLLM';
+import type { Message } from '../../types';
 import { mockChatStream } from './mockChatStream';
 
 export const streamChatResponse = async ({
   text,
   signal,
+  history,
   correlationId,
   onChunk,
 }: {
   text: string;
   signal: AbortSignal;
+  history: Message[];
   correlationId: string;
   onChunk: (chunk: string) => void;
 }) => {
@@ -23,6 +26,7 @@ export const streamChatResponse = async ({
 
   const response = await runAgent({
     userInput: text,
+    history,
     callLLM,
     correlationId,
     signal,
