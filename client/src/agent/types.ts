@@ -1,16 +1,15 @@
-export type AgentIntent =
-  | 'chat'
-  | 'question'
-  | 'needs_clarification'
-  | 'search';
+import z from 'zod';
 
-export type AgentDecision = {
-  intent: AgentIntent;
-  reason: string;
-  confidence?: number;
-};
+export const AgentDecisionSchema = z.object({
+  thought: z.string(),
+  action: z.discriminatedUnion('type', [
+    z.object({ type: z.literal('respond') }),
+    z.object({ type: z.literal('search'), query: z.string() }),
+  ]),
+});
+
+export type AgentDecision = z.infer<typeof AgentDecisionSchema>;
 
 export type AgentResult =
   | { type: 'final'; content: string }
-  | { type: 'clarification'; content: string }
   | { type: 'error'; content: string };

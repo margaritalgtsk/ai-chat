@@ -1,24 +1,15 @@
-import z from 'zod';
 import { log } from '../observability/logger';
 import type { CallLLM } from '../services/llm/callLLM';
 import { agentReasoningPrompt } from './prompts/reasoning';
-import { agentResponsePrompt } from './prompts/response';
 import type { Message } from '../types';
 import { searchTool } from './tools/searchTool';
-//import type { AgentDecision } from './types';
-
-const AgentDecisionSchema = z.object({
-  intent: z.enum(['chat', 'question', 'needs_clarification', 'search']),
-  confidence: z.number().min(0).max(1).optional(),
-  reason: z.string().optional(),
-});
-
-type AgentDecision = z.infer<typeof AgentDecisionSchema>;
-
-function extractJSON(text: string): string | null {
-  const match = text.match(/\{[\s\S]*\}/);
-  return match ? match[0] : null;
-}
+import { extractJSON } from './utils';
+import { MAX_STEPS } from './constants';
+import {
+  AgentDecisionSchema,
+  type AgentDecision,
+  type AgentResult,
+} from './types';
 
 export async function runAgent({
   userInput,
@@ -32,96 +23,95 @@ export async function runAgent({
   callLLM: CallLLM;
   signal?: AbortSignal;
   correlationId?: string;
-}) {
+}): Promise<AgentResult> {
   log.info('Agent started', { correlationId });
 
-  const reasoningRaw = await callLLM({
-    text: agentReasoningPrompt({ userInput }),
-    signal,
-    correlationId,
-  });
+  let observations = '';
 
-  log.info('Agent reasoning completed', { correlationId, reasoningRaw });
-
-  const jsonString = extractJSON(reasoningRaw);
-  if (!jsonString) {
-    log.warn('Failed to extract JSON from agent reasoning output', {
-      correlationId,
-      reasoningRaw,
+  for (let step = 0; step < MAX_STEPS; step++) {
+    const reasoningPrompt = agentReasoningPrompt({
+      userInput,
+      history,
+      observations,
     });
-    return {
-      type: 'error',
-      content: 'Sorry, something went wrong.',
-    };
-  }
+    log.info('Generating reasoning prompt', {
+      correlationId,
+      prompt: reasoningPrompt,
+    });
 
-  let decision: AgentDecision;
+    const reasoningCall = await callLLM({
+      text: reasoningPrompt,
+      signal,
+      correlationId,
+    });
+    log.info('Reasoning call completed', { correlationId });
 
-  try {
-    const parsed = AgentDecisionSchema.safeParse(JSON.parse(jsonString));
-    //decision = JSON.parse(reasoningRaw);
-    if (!parsed.success) {
-      log.warn('Invalid agent decision structure', {
+    const jsonResultCall = extractJSON(reasoningCall);
+    if (!jsonResultCall) {
+      log.warn('Failed to extract JSON from agent reasoning output', {
         correlationId,
-        errors: parsed.error.format(),
+        reasoningRaw: reasoningCall,
       });
-
       return {
         type: 'error',
         content: 'Sorry, something went wrong.',
       };
     }
 
-    decision = parsed.data;
-    console.log('Parsed', parsed);
-  } catch (e) {
-    log.warn('Failed to parse agent reasoning output', {
-      correlationId,
-      error: e,
-    });
-    return {
-      type: 'error',
-      content: 'Sorry, something went wrong.',
-    };
+    let decision: AgentDecision;
+
+    try {
+      const parsed = AgentDecisionSchema.safeParse(JSON.parse(jsonResultCall));
+      if (!parsed.success) {
+        log.warn('Invalid agent decision structure', {
+          correlationId,
+          errors: parsed.error.format(),
+        });
+        return {
+          type: 'error',
+          content: 'Sorry, something went wrong.',
+        };
+      }
+      decision = parsed.data;
+      log.info('Parsed agent decision successfully', {
+        correlationId,
+        decision,
+      });
+    } catch (e) {
+      log.warn('Failed to parse agent decision', { correlationId, error: e });
+      return {
+        type: 'error',
+        content: 'Sorry, something went wrong.',
+      };
+    }
+
+    if (decision.action.type === 'search') {
+      const result = await searchTool(decision.action.query);
+
+      if (!result.success || !result.result) {
+        observations += `Search result: No relevant results found for query: "${decision.action.query}".\n`;
+        continue;
+      }
+      observations += `Search result: ${result.result}\n`;
+    }
+
+    if (decision.action.type === 'respond') {
+      const final = await callLLM({
+        text: `Use observations to answer: ${observations} User: ${userInput}`,
+        signal,
+        correlationId,
+      });
+      return { type: 'final', content: final };
+    }
   }
 
-  /*   if (decision.intent === 'needs_clarification') {
-    return {
-      type: 'clarification',
-      content: decision.reason || 'Could you please clarify your request?',
-    };
-  } */
-
-  let toolContext = '';
-
-  if (decision.intent === 'search') {
-    log.info('Search tool invoked', { correlationId });
-
-    const result = await searchTool(userInput);
-
-    toolContext = `External information: ${result.result}`;
-  }
-
-  const responsePrompt = agentResponsePrompt({
-    userInput,
-    toolContext,
-    intent: decision.intent,
-    history,
-  });
-  log.info('Generating prompt', {
+  log.warn('Agent stopped: max steps reached without final response', {
     correlationId,
-    prompt: responsePrompt,
+    maxSteps: MAX_STEPS,
   });
-
-  const response = await callLLM({
-    text: responsePrompt,
-    signal,
-    correlationId,
-  });
-  log.info('Generated response, agent completed', { correlationId, response });
 
   return {
-    type: 'final',
-    content: response,
+    type: 'error',
+    content: `I could not complete the request in time. Please try again with more specific query or ask for less information.`,
   };
 }

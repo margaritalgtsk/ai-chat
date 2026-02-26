@@ -1,19 +1,40 @@
-export const agentReasoningPrompt = ({ userInput }: { userInput: string }) => `
+import type { Message } from '../../types';
+import { historyToText } from '../utils';
+
+export const agentReasoningPrompt = ({
+  userInput,
+  history,
+  observations,
+}: {
+  userInput: string;
+  history?: Message[];
+  observations?: string;
+}) => {
+  const historyText = historyToText(history);
+
+  return `
 You are an AI assistant that classifies user intent.
 
 User message:
 "${userInput}"
 
+Previous conversation:
+${historyText}
+
+Observations:
+${observations ?? 'No observations yet.'}
+
 Respond ONLY in valid JSON (no extra text):
 
 {
-  "intent": "chat | question | needs_clarification | search",
-  "reason": "short explanation",
-  "confidence": number between 0 and 1
+  "thought": "what you think",
+  "action": {
+    "type": "respond | search",
+    "query": "search query if needed"
+  }
 }
 
 Rules:
-- confidence must be a number between 0 and 1
-- Use lower confidence if the intent is ambiguous
 - Do not include any text outside the JSON
 `;
+};
