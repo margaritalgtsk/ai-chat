@@ -4,12 +4,14 @@ import { agentReasoningPrompt } from './prompts/reasoning';
 import type { Message } from '../types';
 import { searchTool } from './tools/searchTool';
 import { extractJSON } from './utils';
-import { MAX_STEPS } from './constants';
+import { MAX_SEARCHES, MAX_STEPS } from './constants';
 import {
   AgentDecisionSchema,
   type AgentDecision,
   type AgentResult,
+  type AgentStep,
 } from './types';
+import { buildFinalPrompt } from './prompts/buildFinalPrompt';
 
 export async function runAgent({
   userInput,
@@ -26,13 +28,33 @@ export async function runAgent({
 }): Promise<AgentResult> {
   log.info('Agent started', { correlationId });
 
-  let observations = '';
+  const agentSteps: AgentStep[] = [];
 
   for (let step = 0; step < MAX_STEPS; step++) {
+    log.info('Agent steps', { correlationId, agentSteps: [...agentSteps] });
+
+    const searchCount = agentSteps.filter(
+      (s) => s.action.type === 'search'
+    ).length;
+
+    if (searchCount >= MAX_SEARCHES) {
+      log.info('Search budget reached → forcing final answer', {
+        correlationId,
+        searchCount,
+      });
+
+      const final = await callLLM({
+        text: buildFinalPrompt(agentSteps, userInput),
+        signal,
+        correlationId,
+      });
+      return { type: 'final', content: final };
+    }
+
     const reasoningPrompt = agentReasoningPrompt({
       userInput,
       history,
-      observations,
+      agentSteps,
     });
     log.info('Generating reasoning prompt', {
       correlationId,
@@ -86,18 +108,36 @@ export async function runAgent({
     }
 
     if (decision.action.type === 'search') {
-      const result = await searchTool(decision.action.query);
+      const previousQueries = agentSteps
+        .filter((s) => s.action.type === 'search')
+        .map((s) => s.action.query);
 
-      if (!result.success || !result.result) {
-        observations += `Search result: No relevant results found for query: "${decision.action.query}".\n`;
+      if (previousQueries.includes(decision.action.query)) {
+        agentSteps.push({
+          thought: decision.thought,
+          action: decision.action,
+          observations:
+            'Search skipped: query already executed. Choose respond or new query.',
+        });
         continue;
       }
-      observations += `Search result: ${result.result}\n`;
+
+      const result = await searchTool(decision.action.query);
+
+      agentSteps.push({
+        thought: decision.thought,
+        action: decision.action,
+        observations:
+          result.success && result.result
+            ? result.result
+            : 'No relevant results found.',
+      });
+      continue;
     }
 
     if (decision.action.type === 'respond') {
       const final = await callLLM({
-        text: `Use observations to answer: ${observations} User: ${userInput}`,
+        text: buildFinalPrompt(agentSteps, userInput),
         signal,
         correlationId,
       });

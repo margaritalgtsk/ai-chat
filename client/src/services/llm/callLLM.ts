@@ -37,7 +37,7 @@ export const callLLM: CallLLM = async ({ text, signal, correlationId }) => {
   while (true) {
     const { done, value } = await reader.read();
     if (done) {
-      log.info('Stream completed', { correlationId });
+      log.info('CallLLM stream completed ', { correlationId });
       break;
     }
     //const raw = decoder.decode(value, { stream: true });

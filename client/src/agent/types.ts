@@ -6,9 +6,19 @@ export const AgentDecisionSchema = z.object({
     z.object({ type: z.literal('respond') }),
     z.object({ type: z.literal('search'), query: z.string() }),
   ]),
+  observations: z.string().optional(),
 });
 
 export type AgentDecision = z.infer<typeof AgentDecisionSchema>;
+
+export type AgentStep = {
+  thought: string;
+  action: {
+    type: 'respond' | 'search';
+    query?: string;
+  };
+  observations?: string;
+};
 
 export type AgentResult =
   | { type: 'final'; content: string }

@@ -1,14 +1,15 @@
 import type { Message } from '../../types';
 import { historyToText } from '../utils';
+import type { AgentStep } from '../types';
 
 export const agentReasoningPrompt = ({
   userInput,
   history,
-  observations,
+  agentSteps,
 }: {
   userInput: string;
   history?: Message[];
-  observations?: string;
+  agentSteps: AgentStep[];
 }) => {
   const historyText = historyToText(history);
 
@@ -21,8 +22,8 @@ User message:
 Previous conversation:
 ${historyText}
 
-Observations:
-${observations ?? 'No observations yet.'}
+Agent steps:
+${JSON.stringify(agentSteps, null, 2) ?? 'No previous agent steps.'}
 
 Respond ONLY in valid JSON (no extra text):
 
@@ -34,7 +35,16 @@ Respond ONLY in valid JSON (no extra text):
   }
 }
 
+You are a ReAct agent.
+
 Rules:
 - Do not include any text outside the JSON
+- Use search ONLY if you lack critical information.
+- If observations already contain enough information to answer,
+  you MUST choose action: respond.
+- NEVER repeat the same search query.
+- Maximum searches allowed: 3.
+- Prefer responding over searching again.
+
 `;
 };

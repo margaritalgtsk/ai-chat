@@ -17,9 +17,14 @@ const KNOWLEDGE_BASE = [
     content: 'The most common cat names are Whiskers, Mittens, and Fluffy.',
   },
   {
-    keywords: ['weather', 'Limassol'],
+    keywords: ['limassol'],
     content:
       'Limassol is a city in Cyprus with a Mediterranean climate. It typically has warm, dry summers and mild winters.',
+  },
+  {
+    keywords: ['Alina Semenova'],
+    content:
+      'Alina Semenova is a software developer with expertise in web and mobile applications. She offers services such as custom software development, UI/UX design, and consulting.',
   },
 ];
 
@@ -30,8 +35,13 @@ export async function searchTool(query: string): Promise<SearchResult> {
   // - HuggingFace tool
 
   const lowerQuery = query.toLowerCase();
-  const match = KNOWLEDGE_BASE.find((entry) =>
+  /*   const match = KNOWLEDGE_BASE.find((entry) =>
     entry.keywords.some((keyword) => lowerQuery.includes(keyword))
+  ); */
+  const match = KNOWLEDGE_BASE.find((entry) =>
+    entry.keywords.some((keyword) =>
+      lowerQuery.includes(keyword.toLowerCase().trim())
+    )
   );
 
   if (!match) {
