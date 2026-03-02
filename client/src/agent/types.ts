@@ -1,15 +1,11 @@
-import z from 'zod';
+import type { CallLLM } from '../services/llm/callLLM';
 
-export const AgentDecisionSchema = z.object({
-  thought: z.string(),
-  action: z.discriminatedUnion('type', [
-    z.object({ type: z.literal('respond') }),
-    z.object({ type: z.literal('search'), query: z.string() }),
-  ]),
-  observations: z.string().optional(),
-});
-
-export type AgentDecision = z.infer<typeof AgentDecisionSchema>;
+export type AgentContext = {
+  userInput: string;
+  callLLM: CallLLM;
+  signal?: AbortSignal;
+  correlationId?: string;
+};
 
 export type AgentStep = {
   thought: string;

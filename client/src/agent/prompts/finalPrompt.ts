@@ -1,6 +1,6 @@
 import type { AgentStep } from '../types';
 
-export function buildFinalPrompt(steps: AgentStep[], userInput: string) {
+export function finalPrompt(steps: AgentStep[], userInput: string) {
   return `
 You MUST now produce the FINAL ANSWER.
 

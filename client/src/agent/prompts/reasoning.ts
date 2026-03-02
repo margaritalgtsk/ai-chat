@@ -1,6 +1,6 @@
 import type { Message } from '../../types';
-import { historyToText } from '../utils';
 import type { AgentStep } from '../types';
+import { historyToText } from '../utils/history';
 
 export const agentReasoningPrompt = ({
   userInput,
