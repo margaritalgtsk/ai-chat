@@ -1,7 +1,7 @@
 .devPanel {
   position: fixed;
-  top: 12px;
-  right: 12px;
+  bottom: 12px;
+  left: 12px;
   width: 320px;
   max-height: 50vh;
   overflow-y: auto;
@@ -18,10 +18,33 @@
 }
 
 .devPanel h4 {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 13px;
   font-weight: 600;
   color: #93c5fd; /* blue-300 */
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.closeButton {
+  border: 1px solid #1e293b;
+  background: #020617;
+  color: #e5e7eb;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  line-height: 1;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  background: #0b1220;
 }
 
 .stream {

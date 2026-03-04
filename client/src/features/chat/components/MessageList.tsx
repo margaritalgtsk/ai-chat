@@ -1,15 +1,25 @@
 import type React from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import styles from '../../../shared/styles/Chat.module.css';
 import type { Message } from '../../../types';
 import { getErrorText } from '../utils/getErrorText';
 
 interface MessageListProps {
+  sessionId: string;
   messages: Message[];
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages }) => {
+const MessageList: React.FC<MessageListProps> = ({ sessionId, messages }) => {
+  const chatBoxRef = useRef<HTMLDivElement | null>(null);
+
+  useLayoutEffect(() => {
+    const el = chatBoxRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [sessionId, messages]);
+
   return (
-    <div className={styles.chatBox}>
+    <div ref={chatBoxRef} className={styles.chatBox}>
       {messages.map((msg, idx) => (
         <div
           key={idx}

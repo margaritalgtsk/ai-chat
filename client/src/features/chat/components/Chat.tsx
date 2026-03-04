@@ -27,7 +27,10 @@ const Chat = () => {
         createNewChat={() => dispatch(createNewChat())}
       />
       <div className={styles.chatContainer}>
-        <MessageList messages={activeSession?.messages || []} />
+        <MessageList
+          sessionId={activeSessionId || ''}
+          messages={activeSession?.messages || []}
+        />
         <MessageInput
           activeSessionId={activeSessionId}
           isStreaming={activeSessionStatus === 'streaming'}
