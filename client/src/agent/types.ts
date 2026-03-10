@@ -10,7 +10,7 @@ export type AgentContext = {
 export type AgentStep = {
   thought: string;
   action: {
-    type: 'respond' | 'search';
+    type: 'respond' | 'search' | 'time';
     query?: string;
   };
   observations?: string;

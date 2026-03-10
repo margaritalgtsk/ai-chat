@@ -6,5 +6,5 @@ export type SearchResult = {
 export type AgentTool = {
   name: string;
   description: string;
-  execute: (input: string) => Promise<SearchResult>;
+  execute: (query?: string) => Promise<SearchResult>;
 };

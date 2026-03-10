@@ -4,10 +4,10 @@ import type { Message } from '../types';
 import { MAX_SEARCHES, MAX_STEPS } from './constants';
 import { type AgentResult, type AgentStep } from './types';
 import { parseDecision } from './actions/parseDecision';
-import { handleSearch } from './actions/handleSearch';
 import { finalize } from './actions/finalize';
 import { agentError } from './utils/error';
 import { log } from '../observability/logger';
+import { toolRegistry } from './tools/toolRegistry';
 
 export async function runAgent({
   userInput,
@@ -33,6 +33,7 @@ export async function runAgent({
   const agentSteps: AgentStep[] = [];
 
   for (let step = 0; step < MAX_STEPS; step++) {
+    log.info('Agent step', { correlationId, step });
     const searchCount = agentSteps.filter(
       (s) => s.action.type === 'search'
     ).length;
@@ -55,21 +56,40 @@ export async function runAgent({
     });
 
     const decision = parseDecision(reasoningCall);
+    log.info('LLM decision', { correlationId, decision });
     if (!decision) return agentError();
-
-    log.info('Parsed decision from LLM', { correlationId, decision });
-
-    if (decision.action.type === 'search') {
-      const result = await handleSearch({
-        agentSteps,
-        action: decision.action,
-        thought: decision.thought,
-      });
-      agentSteps.push(result);
-    }
 
     if (decision.action.type === 'respond') {
       return finalize({ agentSteps, agentContext });
+    }
+
+    if (decision.action.type === 'search') {
+      const previousQueries = agentSteps
+        .filter((s) => s.action.type === 'search')
+        .map((s) => s.action.query);
+
+      if (previousQueries.includes(decision.action.query)) {
+        agentSteps.push({
+          thought: decision.thought,
+          action: decision.action,
+          observations:
+            'Search skipped: query already executed. Choose respond or new query.',
+        });
+        continue;
+      }
+    }
+
+    const tool = toolRegistry[decision.action.type];
+    if (tool) {
+      const query =
+        'query' in decision.action ? decision.action.query : undefined;
+      const result = await tool.execute(query);
+      agentSteps.push({
+        thought: decision.thought,
+        action: decision.action,
+        observations: result.result ?? 'Tool failed',
+      });
+      continue;
     }
   }
   log.warn('Agent reached maximum steps without finalizing', { correlationId });
