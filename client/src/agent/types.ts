@@ -7,12 +7,14 @@ export type AgentContext = {
   correlationId?: string;
 };
 
+export type AgentStepAction = {
+  type: 'respond' | 'search' | 'time';
+  query?: string;
+};
+
 export type AgentStep = {
   thought: string;
-  action: {
-    type: 'respond' | 'search' | 'time';
-    query?: string;
-  };
+  action: AgentStepAction;
   observations?: string;
 };
 

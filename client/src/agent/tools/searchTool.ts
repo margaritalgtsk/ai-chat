@@ -5,7 +5,7 @@ export const searchTool: AgentTool = {
   name: 'search',
   description:
     'Searches the knowledge base for relevant information based on the query.',
-  execute: async (query: string = '') => {
+  execute: (query: string = '') => {
     // - backend API
     // - vector DB
     // - search endpoint

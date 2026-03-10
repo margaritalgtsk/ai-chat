@@ -1,4 +1,4 @@
-export type SearchResult = {
+export type ToolResult = {
   success: boolean;
   result?: string;
 };
@@ -6,5 +6,5 @@ export type SearchResult = {
 export type AgentTool = {
   name: string;
   description: string;
-  execute: (query?: string) => Promise<SearchResult>;
+  execute: (query?: string) => ToolResult;
 };

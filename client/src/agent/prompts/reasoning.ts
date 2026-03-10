@@ -46,7 +46,7 @@ JSON format:
   "thought": "your reasoning",
   "action": {
     "type": "search | time | respond",
-    "input": "query if needed"
+    "query": "query if needed"
   }
 }
 

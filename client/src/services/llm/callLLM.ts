@@ -47,5 +47,6 @@ export const callLLM: CallLLM = async ({ text, signal, correlationId }) => {
     const chunk = decoder.decode(value, { stream: true });
     fullResponse += chunk;
   }
+  log.info('CallLLM full response', { correlationId, fullResponse });
   return fullResponse;
 };

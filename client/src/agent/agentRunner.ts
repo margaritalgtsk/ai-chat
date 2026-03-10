@@ -7,7 +7,7 @@ import { parseDecision } from './actions/parseDecision';
 import { finalize } from './actions/finalize';
 import { agentError } from './utils/error';
 import { log } from '../observability/logger';
-import { toolRegistry } from './tools/toolRegistry';
+import { toolExecution } from './tools/toolExecution';
 
 export async function runAgent({
   userInput,
@@ -33,7 +33,7 @@ export async function runAgent({
   const agentSteps: AgentStep[] = [];
 
   for (let step = 0; step < MAX_STEPS; step++) {
-    log.info('Agent step', { correlationId, step });
+    log.info('Agent step', { correlationId, step, agentSteps });
     const searchCount = agentSteps.filter(
       (s) => s.action.type === 'search'
     ).length;
@@ -79,15 +79,12 @@ export async function runAgent({
       }
     }
 
-    const tool = toolRegistry[decision.action.type];
-    if (tool) {
-      const query =
-        'query' in decision.action ? decision.action.query : undefined;
-      const result = await tool.execute(query);
+    const toolResult = toolExecution(decision.action);
+    if (toolResult.success) {
       agentSteps.push({
         thought: decision.thought,
         action: decision.action,
-        observations: result.result ?? 'Tool failed',
+        observations: toolResult.result ?? 'Tool failed',
       });
       continue;
     }
