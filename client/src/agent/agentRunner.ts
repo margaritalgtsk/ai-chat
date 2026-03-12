@@ -8,6 +8,8 @@ import { finalize } from './actions/finalize';
 import { agentError } from './utils/error';
 import { log } from '../observability/logger';
 import { toolExecution } from './tools/toolExecution';
+import { memoryStore } from './memory/memoryStore';
+import { memoryCapture } from './actions/memoryCapture';
 
 export async function runAgent({
   userInput,
@@ -29,17 +31,35 @@ export async function runAgent({
     callLLM,
     signal,
     correlationId,
+    //memory: new MemoryStore(),
   };
+
   const agentSteps: AgentStep[] = [];
 
   for (let step = 0; step < MAX_STEPS; step++) {
     log.info('Agent step', { correlationId, step, agentSteps });
+    log.info('Current memory store', {
+      correlationId,
+      memory: memoryStore.getAll(),
+    });
+
     const searchCount = agentSteps.filter(
       (s) => s.action.type === 'search'
     ).length;
 
     if (searchCount >= MAX_SEARCHES) {
-      return finalize({ agentSteps, agentContext });
+      const final = await finalize({ agentSteps, agentContext, history });
+      const memory = await memoryCapture({
+        userInput,
+        signal,
+        correlationId,
+        callLLM,
+      });
+      if (memory) {
+        memoryStore.add(memory.key, memory.value);
+      }
+      log.info('memoryStore', { correlationId, memory: memoryStore.getAll() });
+      return final;
     }
 
     const reasoningPrompt = agentReasoningPrompt({
@@ -60,7 +80,18 @@ export async function runAgent({
     if (!decision) return agentError();
 
     if (decision.action.type === 'respond') {
-      return finalize({ agentSteps, agentContext });
+      const final = await finalize({ agentSteps, agentContext, history });
+      const memory = await memoryCapture({
+        userInput,
+        signal,
+        correlationId,
+        callLLM,
+      });
+      if (memory) {
+        memoryStore.add(memory.key, memory.value);
+      }
+      log.info('memoryStore', { correlationId, memory: memoryStore.getAll() });
+      return final;
     }
 
     if (decision.action.type === 'search') {

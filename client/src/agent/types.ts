@@ -8,7 +8,7 @@ export type AgentContext = {
 };
 
 export type AgentStepAction = {
-  type: 'respond' | 'search' | 'time';
+  type: 'respond' | 'search' | 'time' | 'memory';
   query?: string;
 };
 

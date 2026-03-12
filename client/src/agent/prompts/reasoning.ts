@@ -24,6 +24,9 @@ Use this to search the web for information you do not know.
 2. time()
 Use this to get the current date and time.
 
+3. memory(query: string)
+Search information stored from previous conversation with the user.
+
 Important limitations:
 - You do NOT know the current date or time.
 - If the user asks about today, current date, current time, or day of week, you MUST use the time tool first.
@@ -45,7 +48,7 @@ JSON format:
 {
   "thought": "your reasoning",
   "action": {
-    "type": "search | time | respond",
+    "type": "search | time | memory |respond",
     "query": "query if needed"
   }
 }
