@@ -1,7 +1,7 @@
 import type { CallLLM } from '../services/llm/callLLM';
 import { agentReasoningPrompt } from './prompts/reasoning';
 import type { Message } from '../types';
-import { MAX_SEARCHES, MAX_STEPS } from './constants';
+import { MAX_CRITIC_STEPS, MAX_SEARCHES, MAX_STEPS } from './constants';
 import { type AgentResult, type AgentStep } from './types';
 import { parseDecision } from './actions/parseDecision';
 import { finalize } from './actions/finalize';
@@ -10,6 +10,8 @@ import { log } from '../observability/logger';
 import { toolExecution } from './tools/toolExecution';
 import { memoryStore } from './memory/memoryStore';
 import { memoryCapture } from './actions/memoryCapture';
+import { criticPrompt } from './prompts/criticPrompt';
+import { parseCritic } from './actions/parseCritic';
 
 export async function runAgent({
   userInput,
@@ -33,7 +35,7 @@ export async function runAgent({
     correlationId,
     //memory: new MemoryStore(),
   };
-
+  let postCriticSteps = 0;
   const agentSteps: AgentStep[] = [];
 
   for (let step = 0; step < MAX_STEPS; step++) {
@@ -47,8 +49,33 @@ export async function runAgent({
       (s) => s.action.type === 'search'
     ).length;
 
-    if (searchCount >= MAX_SEARCHES) {
+    if (searchCount >= MAX_SEARCHES && postCriticSteps === 0) {
       const final = await finalize({ agentSteps, agentContext, history });
+
+      const criticRaw = await callLLM({
+        text: criticPrompt({
+          userInput,
+          finalAnswer: final.content,
+          agentSteps,
+        }),
+        signal,
+        correlationId,
+      });
+
+      const critic = parseCritic(criticRaw);
+      if (critic.retry && postCriticSteps < MAX_CRITIC_STEPS) {
+        postCriticSteps++;
+
+        agentSteps.push({
+          thought: 'Critic feedback received',
+          action: {
+            type: 'respond', //TODO: make field action optional
+          },
+          observations: critic.feedback,
+        });
+        continue;
+      }
+
       const memory = await memoryCapture({
         userInput,
         signal,
@@ -81,6 +108,30 @@ export async function runAgent({
 
     if (decision.action.type === 'respond') {
       const final = await finalize({ agentSteps, agentContext, history });
+      const criticRaw = await callLLM({
+        text: criticPrompt({
+          userInput,
+          finalAnswer: final.content,
+          agentSteps,
+        }),
+        signal,
+        correlationId,
+      });
+
+      const critic = parseCritic(criticRaw);
+      if (critic.retry && postCriticSteps < MAX_CRITIC_STEPS) {
+        postCriticSteps++;
+
+        agentSteps.push({
+          thought: 'Critic feedback received',
+          action: {
+            type: 'respond', //TODO: make field action optional
+          },
+          observations: critic.feedback,
+        });
+        continue;
+      }
+
       const memory = await memoryCapture({
         userInput,
         signal,
@@ -99,7 +150,10 @@ export async function runAgent({
         .filter((s) => s.action.type === 'search')
         .map((s) => s.action.query);
 
-      if (previousQueries.includes(decision.action.query)) {
+      if (
+        previousQueries.includes(decision.action.query) &&
+        postCriticSteps === 0
+      ) {
         agentSteps.push({
           thought: decision.thought,
           action: decision.action,

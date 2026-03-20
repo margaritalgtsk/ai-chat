@@ -43,6 +43,10 @@ Rules:
 - Maximum searches allowed: 3.
 - Prefer responding over searching again.
 
+If there is CRITIC FEEDBACK in previous steps:
+- You MUST improve your previous answer
+- You MUST address the feedback directly
+
 JSON format:
 
 {
