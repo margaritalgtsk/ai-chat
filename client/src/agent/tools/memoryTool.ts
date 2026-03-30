@@ -11,7 +11,9 @@ export const memoryTool: AgentTool = {
         result: 'Query is not provided.',
       };
     }
-    const result = memoryStore.search(query);
+
+    const isAllQuery = query.trim().toLowerCase() === 'all';
+    const result = isAllQuery ? memoryStore.getAll() : memoryStore.search(query);
     console.log('Memory search results', { query, result });
 
     if (!result.length) {

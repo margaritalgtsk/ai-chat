@@ -38,7 +38,7 @@ export async function runAgent({
   let postCriticSteps = 0;
   const agentSteps: AgentStep[] = [];
 
-  for (let step = 0; step < MAX_STEPS; step++) {
+  for (let step = 0; step < MAX_STEPS + MAX_CRITIC_STEPS; step++) {
     log.info('Agent step', { correlationId, step, agentSteps });
     log.info('Current memory store', {
       correlationId,
