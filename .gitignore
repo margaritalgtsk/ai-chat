@@ -21,3 +21,4 @@ build/
 # server secrets
 server/index-open-ai.js
 server/index-hf-ai.js
+SKILLS/pr-description/SKILL.md
