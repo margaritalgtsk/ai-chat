@@ -36,8 +36,6 @@ class MemoryStore {
   }
 
   getAll() {
-    console.log(localStorage.getItem(this.storageKey));
-    console.log(JSON.parse(localStorage.getItem(this.storageKey) || '[]'));
     return this.memory;
   }
 }
