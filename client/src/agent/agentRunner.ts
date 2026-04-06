@@ -38,6 +38,41 @@ export async function runAgent({
   let postCriticSteps = 0;
   const agentSteps: AgentStep[] = [];
 
+  type FinalizeOutcome =
+    | { done: true; result: AgentResult }
+    | { done: false };
+
+  async function handleFinalize(): Promise<FinalizeOutcome> {
+    const final = await finalize({ agentSteps, agentContext, history });
+
+    if (postCriticSteps === 0) {
+      const criticRaw = await callLLM({
+        text: criticPrompt({ userInput, finalAnswer: final.content, agentSteps }),
+        signal,
+        correlationId,
+      });
+
+      const critic = parseCritic(criticRaw);
+      log.info('Critic feedback', { correlationId, critic });
+      if (critic.retry) {
+        postCriticSteps++;
+        agentSteps.push({
+          thought: 'Critic feedback received',
+          action: { type: 'respond' }, //TODO: make field action optional
+          observations: critic.feedback,
+        });
+        return { done: false };
+      }
+    }
+
+    const memory = await memoryCapture({ userInput, signal, correlationId, callLLM });
+    if (memory) {
+      memoryStore.add(memory.key, memory.value);
+    }
+    log.info('memoryStore', { correlationId, memory: memoryStore.getAll() });
+    return { done: true, result: final };
+  }
+
   for (let step = 0; step < MAX_STEPS; step++) {
     log.info('Agent step', { correlationId, step, ...agentSteps });
     log.info('Current memory store', {
@@ -50,44 +85,9 @@ export async function runAgent({
     ).length;
 
     if (searchCount >= MAX_SEARCHES && postCriticSteps === 0) {
-      const final = await finalize({ agentSteps, agentContext, history });
-
-      const criticRaw = await callLLM({
-        text: criticPrompt({
-          userInput,
-          finalAnswer: final.content,
-          agentSteps,
-        }),
-        signal,
-        correlationId,
-      });
-
-      const critic = parseCritic(criticRaw);
-      log.info('Critic feedback', { correlationId, critic });
-      if (critic.retry && postCriticSteps === 0) {
-        postCriticSteps++;
-
-        agentSteps.push({
-          thought: 'Critic feedback received',
-          action: {
-            type: 'respond', //TODO: make field action optional
-          },
-          observations: critic.feedback,
-        });
-        continue;
-      }
-
-      const memory = await memoryCapture({
-        userInput,
-        signal,
-        correlationId,
-        callLLM,
-      });
-      if (memory) {
-        memoryStore.add(memory.key, memory.value);
-      }
-      log.info('memoryStore', { correlationId, memory: memoryStore.getAll() });
-      return final;
+      const outcome = await handleFinalize();
+      if (!outcome.done) continue;
+      return outcome.result;
     }
 
     const reasoningPrompt = agentReasoningPrompt({
@@ -108,46 +108,9 @@ export async function runAgent({
     if (!decision) return agentError();
 
     if (decision.action.type === 'respond') {
-      const final = await finalize({ agentSteps, agentContext, history });
-
-      if (postCriticSteps === 0) {
-        const criticRaw = await callLLM({
-          text: criticPrompt({
-            userInput,
-            finalAnswer: final.content,
-            agentSteps,
-          }),
-          signal,
-          correlationId,
-        });
-
-        const critic = parseCritic(criticRaw);
-        log.info('Critic feedback', { correlationId, critic });
-        if (critic.retry) {
-          postCriticSteps++;
-
-          agentSteps.push({
-            thought: 'Critic feedback received',
-            action: {
-              type: 'respond', //TODO: make field action optional
-            },
-            observations: critic.feedback,
-          });
-          continue;
-        }
-      }
-
-      const memory = await memoryCapture({
-        userInput,
-        signal,
-        correlationId,
-        callLLM,
-      });
-      if (memory) {
-        memoryStore.add(memory.key, memory.value);
-      }
-      log.info('memoryStore', { correlationId, memory: memoryStore.getAll() });
-      return final;
+      const outcome = await handleFinalize();
+      if (!outcome.done) continue;
+      return outcome.result;
     }
 
     if (decision.action.type === 'search') {
