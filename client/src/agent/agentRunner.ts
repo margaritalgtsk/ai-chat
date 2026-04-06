@@ -1,7 +1,7 @@
 import type { CallLLM } from '../services/llm/callLLM';
 import { agentReasoningPrompt } from './prompts/reasoning';
 import type { Message } from '../types';
-import { MAX_CRITIC_STEPS, MAX_SEARCHES, MAX_STEPS } from './constants';
+import { MAX_SEARCHES, MAX_STEPS } from './constants';
 import { type AgentResult, type AgentStep } from './types';
 import { parseDecision } from './actions/parseDecision';
 import { finalize } from './actions/finalize';
@@ -39,7 +39,7 @@ export async function runAgent({
   const agentSteps: AgentStep[] = [];
 
   for (let step = 0; step < MAX_STEPS; step++) {
-    log.info('Agent step', { correlationId, step, agentSteps });
+    log.info('Agent step', { correlationId, step, ...agentSteps });
     log.info('Current memory store', {
       correlationId,
       memory: memoryStore.getAll(),
@@ -63,7 +63,8 @@ export async function runAgent({
       });
 
       const critic = parseCritic(criticRaw);
-      if (critic.retry && postCriticSteps < MAX_CRITIC_STEPS) {
+      log.info('Critic feedback', { correlationId, critic });
+      if (critic.retry && postCriticSteps === 0) {
         postCriticSteps++;
 
         agentSteps.push({
@@ -108,28 +109,32 @@ export async function runAgent({
 
     if (decision.action.type === 'respond') {
       const final = await finalize({ agentSteps, agentContext, history });
-      const criticRaw = await callLLM({
-        text: criticPrompt({
-          userInput,
-          finalAnswer: final.content,
-          agentSteps,
-        }),
-        signal,
-        correlationId,
-      });
 
-      const critic = parseCritic(criticRaw);
-      if (critic.retry && postCriticSteps < MAX_CRITIC_STEPS) {
-        postCriticSteps++;
-
-        agentSteps.push({
-          thought: 'Critic feedback received',
-          action: {
-            type: 'respond', //TODO: make field action optional
-          },
-          observations: critic.feedback,
+      if (postCriticSteps === 0) {
+        const criticRaw = await callLLM({
+          text: criticPrompt({
+            userInput,
+            finalAnswer: final.content,
+            agentSteps,
+          }),
+          signal,
+          correlationId,
         });
-        continue;
+
+        const critic = parseCritic(criticRaw);
+        log.info('Critic feedback', { correlationId, critic });
+        if (critic.retry) {
+          postCriticSteps++;
+
+          agentSteps.push({
+            thought: 'Critic feedback received',
+            action: {
+              type: 'respond', //TODO: make field action optional
+            },
+            observations: critic.feedback,
+          });
+          continue;
+        }
       }
 
       const memory = await memoryCapture({
