@@ -1,0 +1,12 @@
+{
+  "name": "ai-chat",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "concurrently --names \"CLIENT,SERVER\" --prefix-colors \"cyan,yellow\" \"cd client && npm run dev\" \"cd server && node index.js\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && node index.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

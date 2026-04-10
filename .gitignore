@@ -18,6 +18,13 @@ build/
 # OS
 .DS_Store
 
+# playwright mcp artifacts
+.playwright-mcp/
+
+# screenshots
+screenshot.png
+*.screenshot.png
+
 # server secrets
 server/index-open-ai.js
 server/index-hf-ai.js
