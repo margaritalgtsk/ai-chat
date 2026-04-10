@@ -4,7 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
+### Run everything (from repo root)
+
+```bash
+npm install      # Install concurrently (first time only)
+npm run dev      # Start client + server together
+```
+
 ### Client (React + TypeScript + Vite)
+
 ```bash
 cd client
 npm run dev      # Start dev server
@@ -14,6 +22,7 @@ npm run preview  # Preview production build
 ```
 
 ### Server (Node.js + Express)
+
 ```bash
 cd server
 node index.js    # Start the backend server
@@ -26,6 +35,7 @@ There are no automated tests configured in this project.
 This is a full-stack AI chat application built around a client-side **ReAct agent** (Reasoning + Acting loop).
 
 ### Stack
+
 - **Frontend**: React + TypeScript + Redux Toolkit, built with Vite
 - **Backend**: Express.js serving a single `POST /api/chat` endpoint that proxies to Groq (llama-3.3-70b-versatile) via Server-Sent Events
 - **LLM Providers**: `server/index.js` uses Groq; alternatives exist in `server/index-open-ai.js` and `server/index-hf-ai.js`
