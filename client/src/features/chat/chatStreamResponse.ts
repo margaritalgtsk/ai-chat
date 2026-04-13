@@ -19,7 +19,7 @@ export const streamChatResponse = async ({
 }) => {
   log.info('Stream opened', { correlationId });
 
-  if (import.meta.env.VITE_MOCK_CHAT_STREAM !== 'true') {
+  if (import.meta.env.VITE_MOCK_CHAT_STREAM === 'true') {
     await mockChatStream({ onChunk, signal });
     return;
   }
