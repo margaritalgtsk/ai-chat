@@ -9,7 +9,8 @@ export type CallLLMParams = {
 export type CallLLM = (params: CallLLMParams) => Promise<string>;
 
 export const callLLM: CallLLM = async ({ text, signal, correlationId }) => {
-  const response = await fetch('http://localhost:3001/api/chat', {
+  const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+  const response = await fetch(`${apiUrl}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message: text }),
