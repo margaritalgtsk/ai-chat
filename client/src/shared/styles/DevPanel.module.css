@@ -63,3 +63,9 @@
 .stream b {
   color: #a5b4fc; /* indigo-300 */
 }
+
+@media (max-width: 900px) {
+  .devPanel {
+    display: none;
+  }
+}
