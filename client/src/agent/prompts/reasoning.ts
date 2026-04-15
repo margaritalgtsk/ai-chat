@@ -18,8 +18,9 @@ You are a ReAct agent that can solve tasks by thinking step-by-step and using to
 
 You have access to the following tools:
 
-1. search(query: string)
-Use this to search the web for information you do not know.
+1. knowledgeSearch(query: string)
+Use this to search the internal knowledge base for information about the team, people, company, services, or product.
+Do NOT use for general knowledge — only use when the question is clearly about internal or domain-specific information.
 
 2. time()
 Use this to get the current date and time.
