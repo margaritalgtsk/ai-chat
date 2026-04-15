@@ -1,10 +1,10 @@
 import { memoryTool } from './memoryTool';
-import { searchTool } from './searchTool';
+import { knowledgeSearchTool } from './searchTool';
 import { timeTool } from './timeTool';
 import type { AgentTool } from './types';
 
 export const toolRegistry: Record<string, AgentTool> = {
-  search: searchTool,
+  knowledgeSearch: knowledgeSearchTool,
   time: timeTool,
   memory: memoryTool,
 };

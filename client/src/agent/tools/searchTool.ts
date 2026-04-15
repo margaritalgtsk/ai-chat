@@ -1,32 +1,41 @@
 import { KNOWLEDGE_BASE } from './knowledgeBase';
+import type { KBEntry } from './knowledgeBase';
 import type { AgentTool } from './types';
 
-export const searchTool: AgentTool = {
-  name: 'search',
+const MAX_RESULTS = 3;
+
+function scoreEntry(entry: KBEntry, lowerQuery: string): number {
+  return entry.keywords.filter((kw) =>
+    lowerQuery.includes(kw.toLowerCase().trim())
+  ).length;
+}
+
+export const knowledgeSearchTool: AgentTool = {
+  name: 'knowledgeSearch',
   description:
-    'Searches the knowledge base for relevant information based on the query.',
+    'Searches the internal knowledge base for information about the team, company, services, and product.',
   execute: (query: string = '') => {
-    // - backend API
-    // - vector DB
-    // - search endpoint
-    // - HuggingFace tool
     const lowerQuery = query.toLowerCase();
 
-    const match = KNOWLEDGE_BASE.find((entry) =>
-      entry.keywords.some((keyword) =>
-        lowerQuery.includes(keyword.toLowerCase().trim())
-      )
-    );
+    const scored = KNOWLEDGE_BASE.map((entry) => ({
+      entry,
+      score: scoreEntry(entry, lowerQuery),
+    }))
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_RESULTS);
 
-    if (!match) {
-      return {
-        success: false,
-      };
+    if (scored.length === 0) {
+      return { success: false };
     }
+
+    const result = scored
+      .map(({ entry }) => `[${entry.category}] ${entry.content}`)
+      .join('\n\n');
 
     return {
       success: true,
-      result: match.content,
+      result,
     };
   },
 };

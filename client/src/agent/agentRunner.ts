@@ -81,7 +81,7 @@ export async function runAgent({
     });
 
     const searchCount = agentSteps.filter(
-      (s) => s.action.type === 'search'
+      (s) => s.action.type === 'knowledgeSearch'
     ).length;
 
     if (searchCount >= MAX_SEARCHES && postCriticSteps === 0) {
@@ -113,9 +113,9 @@ export async function runAgent({
       return outcome.result;
     }
 
-    if (decision.action.type === 'search') {
+    if (decision.action.type === 'knowledgeSearch') {
       const previousQueries = agentSteps
-        .filter((s) => s.action.type === 'search')
+        .filter((s) => s.action.type === 'knowledgeSearch')
         .map((s) => s.action.query);
 
       if (
