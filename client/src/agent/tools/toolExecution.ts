@@ -2,7 +2,9 @@ import type { AgentStepAction } from '../types';
 import { toolRegistry } from './toolRegistry';
 import type { ToolResult } from './types';
 
-export const toolExecution = (action: AgentStepAction): ToolResult => {
+export const toolExecution = async (
+  action: AgentStepAction
+): Promise<ToolResult> => {
   const tool = toolRegistry[action.type];
 
   if (!tool) {
@@ -14,7 +16,7 @@ export const toolExecution = (action: AgentStepAction): ToolResult => {
 
   try {
     const query = 'query' in action ? action.query : undefined;
-    const result = tool.execute(query);
+    const result = await tool.execute(query);
 
     return result;
   } catch {
