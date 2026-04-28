@@ -26,12 +26,21 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose }) => {
             </div>
           </li>
           <li>
+            <span className={styles.toolIcon}>🌐</span>
+            <div>
+              <strong>Web Search</strong>
+              <span className={styles.toolDesc}>
+                Searches the internet for current events, news, and general
+                knowledge
+              </span>
+            </div>
+          </li>
+          <li>
             <span className={styles.toolIcon}>🔍</span>
             <div>
-              <strong>Search</strong>
+              <strong>Knowledge Search</strong>
               <span className={styles.toolDesc}>
-                Searches internal knowledge — web search is coming in a future
-                update
+                Searches internal knowledge about the team, company, and product
               </span>
             </div>
           </li>
