@@ -38,16 +38,18 @@ export async function runAgent({
   let postCriticSteps = 0;
   const agentSteps: AgentStep[] = [];
 
-  type FinalizeOutcome =
-    | { done: true; result: AgentResult }
-    | { done: false };
+  type FinalizeOutcome = { done: true; result: AgentResult } | { done: false };
 
   async function handleFinalize(): Promise<FinalizeOutcome> {
     const final = await finalize({ agentSteps, agentContext, history });
 
     if (postCriticSteps === 0) {
       const criticRaw = await callLLM({
-        text: criticPrompt({ userInput, finalAnswer: final.content, agentSteps }),
+        text: criticPrompt({
+          userInput,
+          finalAnswer: final.content,
+          agentSteps,
+        }),
         signal,
         correlationId,
       });
@@ -65,7 +67,12 @@ export async function runAgent({
       }
     }
 
-    const memory = await memoryCapture({ userInput, signal, correlationId, callLLM });
+    const memory = await memoryCapture({
+      userInput,
+      signal,
+      correlationId,
+      callLLM,
+    });
     if (memory) {
       memoryStore.add(memory.key, memory.value);
     }
@@ -81,7 +88,8 @@ export async function runAgent({
     });
 
     const searchCount = agentSteps.filter(
-      (s) => s.action.type === 'knowledgeSearch'
+      (s) =>
+        s.action.type === 'knowledgeSearch' || s.action.type === 'webSearch'
     ).length;
 
     if (searchCount >= MAX_SEARCHES && postCriticSteps === 0) {
@@ -113,9 +121,15 @@ export async function runAgent({
       return outcome.result;
     }
 
-    if (decision.action.type === 'knowledgeSearch') {
+    if (
+      decision.action.type === 'knowledgeSearch' ||
+      decision.action.type === 'webSearch'
+    ) {
       const previousQueries = agentSteps
-        .filter((s) => s.action.type === 'knowledgeSearch')
+        .filter(
+          (s) =>
+            s.action.type === 'knowledgeSearch' || s.action.type === 'webSearch'
+        )
         .map((s) => s.action.query);
 
       if (
@@ -132,7 +146,7 @@ export async function runAgent({
       }
     }
 
-    const toolResult = toolExecution(decision.action);
+    const toolResult = await toolExecution(decision.action);
     if (toolResult.success) {
       agentSteps.push({
         thought: decision.thought,

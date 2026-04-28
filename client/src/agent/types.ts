@@ -8,7 +8,7 @@ export type AgentContext = {
 };
 
 export type AgentStepAction = {
-  type: 'respond' | 'knowledgeSearch' | 'time' | 'memory';
+  type: 'respond' | 'knowledgeSearch' | 'webSearch' | 'time' | 'memory';
   query?: string;
 };
 
