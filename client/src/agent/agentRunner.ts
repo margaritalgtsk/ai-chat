@@ -2,7 +2,7 @@ import type { CallLLM } from '../services/llm/callLLM';
 import { agentReasoningPrompt } from './prompts/reasoning';
 import type { Message } from '../types';
 import { MAX_SEARCHES, MAX_STEPS } from './constants';
-import { type AgentResult, type AgentStep } from './types';
+import { type AgentResult, type AgentStep, type AgentUpdate } from './types';
 import { parseDecision } from './actions/parseDecision';
 import { finalize } from './actions/finalize';
 import { agentError } from './utils/error';
@@ -13,7 +13,7 @@ import { memoryCapture } from './actions/memoryCapture';
 import { criticPrompt } from './prompts/criticPrompt';
 import { parseCritic } from './actions/parseCritic';
 
-export async function runAgent({
+export async function* runAgent({
   userInput,
   history,
   callLLM,
@@ -25,7 +25,7 @@ export async function runAgent({
   callLLM: CallLLM;
   signal?: AbortSignal;
   correlationId?: string;
-}): Promise<AgentResult> {
+}): AsyncGenerator<AgentUpdate, AgentResult> {
   log.info('Starting agent with input', { correlationId, userInput });
 
   const agentContext = {
@@ -81,6 +81,7 @@ export async function runAgent({
   }
 
   for (let step = 0; step < MAX_STEPS; step++) {
+    yield 'thinking';
     log.info('Agent step', { correlationId, step, ...agentSteps });
     log.info('Current memory store', {
       correlationId,
@@ -93,6 +94,7 @@ export async function runAgent({
     ).length;
 
     if (searchCount >= MAX_SEARCHES && postCriticSteps === 0) {
+      yield 'validating';
       const outcome = await handleFinalize();
       if (!outcome.done) continue;
       return outcome.result;
@@ -114,8 +116,10 @@ export async function runAgent({
     const decision = parseDecision(reasoningCall);
     log.info('LLM decision', { correlationId, decision });
     if (!decision) return agentError();
+    yield 'thinking';
 
     if (decision.action.type === 'respond') {
+      yield 'validating';
       const outcome = await handleFinalize();
       if (!outcome.done) continue;
       return outcome.result;
@@ -125,6 +129,7 @@ export async function runAgent({
       decision.action.type === 'knowledgeSearch' ||
       decision.action.type === 'webSearch'
     ) {
+      yield 'searching';
       const previousQueries = agentSteps
         .filter(
           (s) =>
@@ -148,6 +153,7 @@ export async function runAgent({
 
     const toolResult = await toolExecution(decision.action);
     if (toolResult.success) {
+      yield 'search_result';
       agentSteps.push({
         thought: decision.thought,
         action: decision.action,

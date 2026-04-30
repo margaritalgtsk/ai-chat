@@ -1,3 +1,5 @@
+import type { AgentUpdate } from './agent/types';
+
 export type MessageStatus =
   | 'idle'
   | 'streaming'
@@ -18,6 +20,7 @@ export interface Message {
   };
   errorType?: ChatErrorType;
   correlationId?: string;
+  agentUpdates?: AgentUpdate;
 }
 
 export interface ChatSession {

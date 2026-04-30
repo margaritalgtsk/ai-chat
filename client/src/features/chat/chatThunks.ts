@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { RootState } from '../../store/store';
 import {
+  addAgentUpdate,
   addMessages,
   finalizeAssistantMessage,
   markAssistantMessageAborted,
@@ -95,6 +96,15 @@ export const sendMessageThunk = createAsyncThunk<
                 sessionId,
                 messageId: aiMessage.id,
                 content: assistantContent,
+              })
+            );
+          },
+          onUpdate: (update) => {
+            thunkApi.dispatch(
+              addAgentUpdate({
+                sessionId,
+                messageId: aiMessage.id,
+                update,
               })
             );
           },
