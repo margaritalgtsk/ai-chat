@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { ChatErrorType, ChatSession, Message } from '../../types';
 import { loadChatHistory } from '../../storage';
 import { sendMessageThunk } from './chatThunks';
+import type { AgentUpdate } from '../../agent/types';
 
 interface ChatState {
   sessions: ChatSession[];
@@ -59,6 +60,24 @@ export const chatSlice = createSlice({
       if (!message || message.role !== 'assistant') return;
       message.content = action.payload.content;
       message.status = 'streaming';
+    },
+    addAgentUpdate: (
+      state,
+      action: PayloadAction<{
+        sessionId: string;
+        messageId: string;
+        update: AgentUpdate;
+      }>
+    ) => {
+      const session = state.sessions.find(
+        (s) => s.id === action.payload.sessionId
+      );
+      if (!session) return;
+      const message = session.messages.find(
+        (m) => m.id === action.payload.messageId
+      );
+      if (!message || message.role !== 'assistant') return;
+      message.agentUpdates = action.payload.update;
     },
     finalizeAssistantMessage: (
       state,
@@ -179,6 +198,7 @@ export const {
   createNewChat,
   addMessages,
   updateAssistantMessage,
+  addAgentUpdate,
   finalizeAssistantMessage,
   setAssistantMessageRetry,
   markAssistantMessageAborted,

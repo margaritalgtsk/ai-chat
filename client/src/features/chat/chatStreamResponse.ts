@@ -3,6 +3,7 @@ import { log } from '../../observability/logger';
 import { callLLM } from '../../services/llm/callLLM';
 import type { Message } from '../../types';
 import { mockChatStream } from './mockChatStream';
+import type { AgentUpdate } from '../../agent/types';
 
 export const streamChatResponse = async ({
   text,
@@ -10,12 +11,14 @@ export const streamChatResponse = async ({
   history,
   correlationId,
   onChunk,
+  onUpdate,
 }: {
   text: string;
   signal: AbortSignal;
   history: Message[];
   correlationId: string;
   onChunk: (chunk: string) => void;
+  onUpdate: (update: AgentUpdate) => void;
 }) => {
   log.info('Stream opened', { correlationId });
 
@@ -24,13 +27,20 @@ export const streamChatResponse = async ({
     return;
   }
 
-  const response = await runAgent({
+  const gen = runAgent({
     userInput: text,
     history,
     callLLM,
     correlationId,
     signal,
   });
-  log.info('Agent response received', { correlationId, response });
-  onChunk(response.content);
+
+  while (true) {
+    const next = await gen.next();
+    if (next.done) {
+      onChunk(next.value.content);
+      break;
+    }
+    onUpdate(next.value);
+  }
 };

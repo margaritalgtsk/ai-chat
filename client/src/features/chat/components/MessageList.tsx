@@ -27,7 +27,13 @@ const MessageList: React.FC<MessageListProps> = ({ sessionId, messages }) => {
             msg.role === 'user' ? styles.user : styles.assistant
           }`}
         >
-          {msg.role === 'assistant' && msg.status === 'streaming' && !msg.content ? (
+          {msg.agentUpdates && msg.status === 'streaming' && (
+            <div>{msg.agentUpdates}</div>
+          )}
+
+          {msg.role === 'assistant' &&
+          msg.status === 'streaming' &&
+          !msg.content ? (
             <span>
               <span className={styles.typingDot} />
               <span className={styles.typingDot} />

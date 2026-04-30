@@ -21,3 +21,9 @@ export type AgentStep = {
 export type AgentResult =
   | { type: 'final'; content: string }
   | { type: 'error'; content: string };
+
+export type AgentUpdate =
+  | 'thinking'
+  | 'searching'
+  | 'search_result'
+  | 'validating';
