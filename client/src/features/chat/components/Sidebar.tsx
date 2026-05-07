@@ -3,6 +3,7 @@ import styles from '../../../shared/styles/Chat.module.css';
 import type { ChatSession } from '../../../types';
 import { useAppDispatch } from '../../../store/hooks';
 import { selectSession } from '../chatSlice';
+import { useAuth0 } from '@auth0/auth0-react';
 
 interface SidebarProps {
   sessions: ChatSession[];
@@ -20,6 +21,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const dispatch = useAppDispatch();
 
+  const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+
   return (
     <div className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.sidebarHeader}>
@@ -34,7 +37,10 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
       <button
         className={styles.newChatButton}
-        onClick={() => { createNewChat(); onClose?.(); }}
+        onClick={() => {
+          createNewChat();
+          onClose?.();
+        }}
       >
         New Session
       </button>
@@ -42,13 +48,34 @@ const Sidebar: React.FC<SidebarProps> = ({
         {sessions.map((session) => (
           <div
             key={session.id}
-            onClick={() => { dispatch(selectSession(session.id)); onClose?.(); }}
+            onClick={() => {
+              dispatch(selectSession(session.id));
+              onClose?.();
+            }}
             className={`${styles.sessionItem} ${session.id === activeSessionId ? styles.activeSession : ''}`}
           >
             {session.messages[0]?.content.slice(0, 20) || 'Current Session'}
           </div>
         ))}
       </div>
+      {isAuthenticated ? (
+        <button
+          className={styles.logoutButton}
+          onClick={() =>
+            logout({ logoutParams: { returnTo: window.location.origin } })
+          }
+        >
+          Logout
+        </button>
+      ) : (
+        <button
+          className={styles.signinButton}
+          onClick={() => loginWithRedirect()}
+          data-tooltip="Sign in to save chat history"
+        >
+          Sign in
+        </button>
+      )}
     </div>
   );
 };
