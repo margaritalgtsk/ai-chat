@@ -1,7 +1,7 @@
 .devPanel {
   position: fixed;
-  bottom: 12px;
-  left: 12px;
+  top: 6px;
+  right: 6px;
   width: 320px;
   max-height: 50vh;
   overflow-y: auto;

@@ -16,14 +16,20 @@ interface ChatState {
 }
 
 const initialState: ChatState = {
-  sessions: loadChatHistory(),
-  activeSessionId: loadChatHistory()[0]?.id || '',
+  sessions: [{ id: 'default', messages: [] }],
+  //sessions: loadChatHistory(),
+  activeSessionId: 'default',
+  //activeSessionId: loadChatHistory()[0]?.id || '',
 };
 
 export const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
+    loadHistory: (state) => {
+      state.sessions = loadChatHistory();
+      state.activeSessionId = state.sessions[0]?.id || '';
+    },
     createNewChat: (state) => {
       const newSession = { id: uuidv4(), messages: [] };
       state.sessions.unshift(newSession);
@@ -195,6 +201,7 @@ export const selectSessionStatus = createSelector(
 );
 
 export const {
+  loadHistory,
   createNewChat,
   addMessages,
   updateAssistantMessage,
@@ -205,4 +212,5 @@ export const {
   markAssistantMessageError,
   selectSession,
 } = chatSlice.actions;
+
 export const chatReducer = chatSlice.reducer;

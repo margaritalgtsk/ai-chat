@@ -33,6 +33,7 @@ chatListener.startListening({
   ),
   effect: (_, listenerApi) => {
     const state = listenerApi.getState() as RootState;
+    if (!state.auth.isAuthenticated) return;
     saveChatHistory(state.chat.sessions);
   },
 });
