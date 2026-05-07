@@ -42,9 +42,10 @@ const Chat = () => {
             onClick={() => setIsSidebarOpen(true)}
             aria-label="Open sessions"
           >
-            menu
+            ☰
           </button>
-          <span className={styles.mobileTitle}>AI Chat</span>
+          <span className={styles.mobileTitle}>AI Chat Agent</span>
+          <img src="/logo.png" alt="logo" className={styles.sidebarLogo} />
         </div>
         <MessageList
           sessionId={activeSessionId || ''}

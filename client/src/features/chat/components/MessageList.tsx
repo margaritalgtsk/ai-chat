@@ -20,38 +20,43 @@ const MessageList: React.FC<MessageListProps> = ({ sessionId, messages }) => {
 
   return (
     <div ref={chatBoxRef} className={styles.chatBox}>
-      {messages.map((msg, idx) => (
-        <div
-          key={idx}
-          className={`${styles.message} ${
-            msg.role === 'user' ? styles.user : styles.assistant
-          }`}
-        >
-          {msg.agentUpdates && msg.status === 'streaming' && (
-            <div>{msg.agentUpdates}</div>
-          )}
-
-          {msg.role === 'assistant' &&
-          msg.status === 'streaming' &&
-          !msg.content ? (
-            <span>
-              <span className={styles.typingDot} />
-              <span className={styles.typingDot} />
-              <span className={styles.typingDot} />
-            </span>
-          ) : (
-            msg.content
-          )}
-          {msg.status === 'retrying' && msg.retry && (
-            <div className={styles.retry}>
-              Retrying… ({msg.retry.attempt}/{msg.retry.max})
-            </div>
-          )}
-          {msg.status === 'error' && (
-            <div className={styles.error}>{getErrorText(msg.errorType)}</div>
-          )}
+      {messages.length === 0 ? (
+        <div className={styles.emptyState}>
+          <img src="/logoText.png" alt="logo" />
         </div>
-      ))}
+      ) : (
+        messages.map((msg, idx) => (
+          <div
+            key={idx}
+            className={`${styles.message} ${
+              msg.role === 'user' ? styles.user : styles.assistant
+            }`}
+          >
+            {msg.agentUpdates && msg.status === 'streaming' && (
+              <div>{msg.agentUpdates}</div>
+            )}
+            {msg.role === 'assistant' &&
+            msg.status === 'streaming' &&
+            !msg.content ? (
+              <span>
+                <span className={styles.typingDot} />
+                <span className={styles.typingDot} />
+                <span className={styles.typingDot} />
+              </span>
+            ) : (
+              msg.content
+            )}
+            {msg.status === 'retrying' && msg.retry && (
+              <div className={styles.retry}>
+                Retrying… ({msg.retry.attempt}/{msg.retry.max})
+              </div>
+            )}
+            {msg.status === 'error' && (
+              <div className={styles.error}>{getErrorText(msg.errorType)}</div>
+            )}
+          </div>
+        ))
+      )}
     </div>
   );
 };

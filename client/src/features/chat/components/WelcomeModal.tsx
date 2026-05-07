@@ -9,7 +9,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose }) => {
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <h2 className={styles.title}>Welcome to AI Chat</h2>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Welcome to AI Chat</h2>
+          <img src="/logoText.png" alt="logo" className={styles.logo} />
+        </div>
         <p className={styles.intro}>
           This chat is powered by a <strong>ReAct agent</strong> (Reasoning +
           Acting) running on <strong>Groq</strong>'s LLaMA model. The agent

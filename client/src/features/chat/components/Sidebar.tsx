@@ -27,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     <div className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.sidebarHeader}>
         <h2>Chat Sessions</h2>
+        <img src="/logo.png" alt="logo" className={styles.sidebarLogo} />
         <button
           className={styles.closeSidebarButton}
           onClick={onClose}
