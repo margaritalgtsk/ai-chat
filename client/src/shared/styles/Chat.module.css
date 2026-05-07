@@ -10,8 +10,8 @@
   --bg-soft: #f1f5f9;
   --text-main: #0f172a;
   --text-muted: #64748b;
-  --accent: #0b74d8;
-  --accent-strong: #085fb1;
+  --accent: #6248d4;
+  --accent-strong: #4f3db0;
   --border-soft: #e2e8f0;
   max-width: 980px;
   width: calc(100% - 40px);
@@ -40,6 +40,11 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.sidebarLogo {
+  width: 52px;
+  height: 52px;
 }
 
 .newChatButton {
@@ -88,18 +93,18 @@
   width: 100%;
   margin-top: auto;
   padding: 10px 12px;
-  background: var(--accent);
+  background: linear-gradient(135deg, #6248d4 0%, #00a8cc 100%);
   border: none;
   border-radius: 10px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
   color: white;
-  transition: background-color 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .signinButton:hover {
-  background: var(--accent-strong);
+  opacity: 0.88;
 }
 
 .signinButton[data-tooltip]::after {
@@ -143,6 +148,18 @@
   height: 100%;
   overflow-y: auto;
   padding: 4px 6px 22px 2px;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  img {
+    width: 100px;
+    height: 100px;
+  }
 }
 
 .message {
@@ -271,10 +288,14 @@
 }
 
 .activeSession {
-  background-color: #0b74d8;
-  border-color: #0b74d8;
+  background-color: #00a8cc;
+  border-color: #00a8cc;
   color: white;
   font-weight: 700;
+}
+
+.activeSession:hover {
+  background-color: #00a8cc;
 }
 
 .mobileTopBar {
@@ -286,19 +307,18 @@
 }
 
 .burgerButton {
-  background: none;
-  border: 1px solid var(--border-soft);
+  background: linear-gradient(135deg, #6248d4 0%, #00a8cc 100%);
+  border: none;
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 4px 10px 6px;
   cursor: pointer;
   font-size: 18px;
-  color: var(--text-main);
-  line-height: 1;
-  transition: background-color 0.2s ease;
+  color: white;
+  transition: opacity 0.2s ease;
 }
 
 .burgerButton:hover {
-  background: var(--bg-soft);
+  opacity: 0.88;
 }
 
 .backdrop {
@@ -346,7 +366,7 @@
     top: 0;
     left: 0;
     height: 100vh;
-    width: 280px;
+    width: 320px;
     z-index: 100;
     border-radius: 0;
     transform: translateX(-100%);
@@ -367,8 +387,13 @@
     z-index: 99;
   }
 
+  .sidebarHeader .sidebarLogo {
+    display: none;
+  }
+
   .mobileTopBar {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     gap: 12px;
     padding-bottom: 8px;
