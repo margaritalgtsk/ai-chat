@@ -49,6 +49,12 @@ export const chatSlice = createSlice({
     selectSession: (state, action: PayloadAction<string>) => {
       state.activeSessionId = action.payload;
     },
+    deleteSession: (state, action: PayloadAction<string>) => {
+      state.sessions = state.sessions.filter((s) => s.id !== action.payload);
+      if (state.activeSessionId === action.payload) {
+        state.activeSessionId = state.sessions[0]?.id || '';
+      }
+    },
     addMessages: (
       state,
       action: PayloadAction<{ sessionId: string; messages: Message[] }>
@@ -216,6 +222,7 @@ export const {
   createNewChat,
   setSessionTitle,
   selectSession,
+  deleteSession,
   addMessages,
   updateAssistantMessage,
   addAgentUpdate,

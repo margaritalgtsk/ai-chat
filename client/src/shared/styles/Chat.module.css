@@ -297,6 +297,7 @@
 }
 
 .sessionItem {
+  position: relative;
   padding: 9px 10px;
   margin-bottom: 6px;
   border-radius: 9px;
@@ -304,10 +305,66 @@
   background-color: #f8fafc;
   border: 1px solid var(--border-soft);
   transition: background-color 0.2s ease;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
   font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.sessionItem span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.sessionMenuButton {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.sessionItem:hover .sessionMenuButton {
+  opacity: 1;
+}
+
+.sessionMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 100px;
+  overflow: hidden;
+}
+
+.sessionMenuDelete {
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #e5533d;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.sessionMenuDelete:hover {
+  background: #fff1f2;
 }
 
 .sessionItem:hover {
