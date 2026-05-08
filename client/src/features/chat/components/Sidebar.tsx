@@ -21,7 +21,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const dispatch = useAppDispatch();
 
-  const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
+  const { isAuthenticated, logout, loginWithRedirect, user } = useAuth0();
 
   return (
     <div className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
@@ -60,14 +60,26 @@ const Sidebar: React.FC<SidebarProps> = ({
         ))}
       </div>
       {isAuthenticated ? (
-        <button
-          className={styles.logoutButton}
-          onClick={() =>
-            logout({ logoutParams: { returnTo: window.location.origin } })
-          }
-        >
-          Logout
-        </button>
+        <>
+          <div className={styles.userInfo}>
+            {user?.picture && (
+              <img
+                src={user.picture}
+                alt={user.name}
+                className={styles.userAvatar}
+              />
+            )}
+            <span className={styles.userName}>{user?.name ?? user?.email}</span>
+          </div>
+          <button
+            className={styles.logoutButton}
+            onClick={() =>
+              logout({ logoutParams: { returnTo: window.location.origin } })
+            }
+          >
+            Logout
+          </button>
+        </>
       ) : (
         <button
           className={styles.signinButton}

@@ -65,9 +65,36 @@
   background: #e2e8f0;
 }
 
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.userName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .logoutButton {
   width: 100%;
-  margin-top: auto;
   padding: 10px 12px;
   background: transparent;
   border: 1px solid var(--border-soft);
