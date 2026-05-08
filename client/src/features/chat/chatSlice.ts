@@ -35,6 +35,17 @@ export const chatSlice = createSlice({
       state.sessions.unshift(newSession);
       state.activeSessionId = newSession.id;
     },
+    setSessionTitle: (
+      state,
+      action: PayloadAction<{ sessionId: string; title: string }>
+    ) => {
+      const session = state.sessions.find(
+        (s) => s.id === action.payload.sessionId
+      );
+      if (session) {
+        session.title = action.payload.title;
+      }
+    },
     selectSession: (state, action: PayloadAction<string>) => {
       state.activeSessionId = action.payload;
     },
@@ -203,6 +214,8 @@ export const selectSessionStatus = createSelector(
 export const {
   loadHistory,
   createNewChat,
+  setSessionTitle,
+  selectSession,
   addMessages,
   updateAssistantMessage,
   addAgentUpdate,
@@ -210,7 +223,6 @@ export const {
   setAssistantMessageRetry,
   markAssistantMessageAborted,
   markAssistantMessageError,
-  selectSession,
 } = chatSlice.actions;
 
 export const chatReducer = chatSlice.reducer;
