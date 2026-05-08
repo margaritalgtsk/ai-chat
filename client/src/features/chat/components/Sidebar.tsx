@@ -55,7 +55,9 @@ const Sidebar: React.FC<SidebarProps> = ({
             }}
             className={`${styles.sessionItem} ${session.id === activeSessionId ? styles.activeSession : ''}`}
           >
-            {session.messages[0]?.content.slice(0, 20) || 'Current Session'}
+            {session.title ??
+              session.messages[0]?.content.slice(0, 20) ??
+              'Current Session'}
           </div>
         ))}
       </div>

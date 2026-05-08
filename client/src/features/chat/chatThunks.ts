@@ -8,6 +8,7 @@ import {
   markAssistantMessageError,
   selectActiveSession,
   setAssistantMessageRetry,
+  setSessionTitle,
   updateAssistantMessage,
 } from './chatSlice';
 import type { Message } from '../../types';
@@ -21,6 +22,14 @@ import { streamChatResponse } from './chatStreamResponse';
 import { MAX_RETRIES } from './constants';
 import { log } from '../../observability/logger';
 import { streamRegistry } from '../../dev/activeStreams';
+import { callLLM } from '../../services/llm/callLLM';
+
+async function generateSessionTitle(userMessage: string): Promise<string> {
+  const title = await callLLM({
+    text: `Create a short chat title (2-4 words) that captures the topic of this message: "${userMessage}". Reply with the title only, no quotes, no punctuation, no explanation.`,
+  });
+  return title.trim();
+}
 
 export const sendMessageThunk = createAsyncThunk<
   void,
@@ -115,6 +124,12 @@ export const sendMessageThunk = createAsyncThunk<
             messageId: aiMessage.id,
           })
         );
+        // generate title only for the first exchange
+        if (historyWithoutLastAssistant.length === 0) {
+          generateSessionTitle(text).then((title) => {
+            thunkApi.dispatch(setSessionTitle({ sessionId, title }));
+          });
+        }
         log.info('Stream completed successfully', {
           sessionId,
           messageId: aiMessage.id,
