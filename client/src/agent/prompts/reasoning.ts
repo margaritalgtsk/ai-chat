@@ -32,6 +32,7 @@ Use memory("all") to retrieve everything known about the user (e.g. when asked "
 4. knowledgeSearch(query: string)
 Use this to search the internal knowledge base for information about the team, people, company, services, or product.
 Do NOT use for general knowledge — only use when the question is clearly about internal or domain-specific information.
+If the user refers to "this app", "this product", or asks how something here works — always use knowledgeSearch, not webSearch.
 
 Important limitations:
 - You do NOT know the current date or time.

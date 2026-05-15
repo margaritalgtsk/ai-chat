@@ -91,7 +91,7 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
   // Tech
   {
     id: 'tech_stack',
-    keywords: ['stack', 'technology', 'built with', 'groq', 'llm', 'model', 'vite'],
+    keywords: ['stack', 'technology', 'built with', 'groq', 'llm', 'model', 'vite', 'built', 'how is this', 'how was this', 'architecture', 'how it works'],
     category: 'tech',
     content:
       'Frontend: React 19, TypeScript, Redux Toolkit, Vite. Backend: Node.js, Express, Groq API (llama-3.3-70b-versatile). Agent: custom ReAct loop running entirely client-side with Zod schema validation.',
