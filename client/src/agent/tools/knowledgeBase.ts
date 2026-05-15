@@ -54,7 +54,7 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
   },
   {
     id: 'company_services',
-    keywords: ['services', 'offers', 'what do you do', 'consulting', 'development', 'hire', 'work'],
+    keywords: ['services', 'offers', 'what do you do', 'consulting', 'development', 'hire', 'work', 'looking for a developer', 'need a developer', 'find a developer', 'looking for help'],
     category: 'company',
     content:
       'The studio offers custom software development, UI/UX design, technical consulting, and AI integration. Typical engagements include web apps, mobile apps, API design, and AI-powered features. Project-based and retainer contracts are available.',
