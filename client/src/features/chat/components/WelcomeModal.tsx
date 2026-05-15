@@ -52,7 +52,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose }) => {
             <div>
               <strong>Memory</strong>
               <span className={styles.toolDesc}>
-                Remembers context from your previous conversations
+                Remembers context from your previous conversations (requires sign in)
               </span>
             </div>
           </li>

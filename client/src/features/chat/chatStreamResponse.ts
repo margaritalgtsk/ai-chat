@@ -10,6 +10,7 @@ export const streamChatResponse = async ({
   signal,
   history,
   correlationId,
+  isAuthenticated,
   onChunk,
   onUpdate,
 }: {
@@ -17,6 +18,7 @@ export const streamChatResponse = async ({
   signal: AbortSignal;
   history: Message[];
   correlationId: string;
+  isAuthenticated: boolean;
   onChunk: (chunk: string) => void;
   onUpdate: (update: AgentUpdate) => void;
 }) => {
@@ -33,6 +35,7 @@ export const streamChatResponse = async ({
     callLLM,
     correlationId,
     signal,
+    isAuthenticated,
   });
 
   while (true) {

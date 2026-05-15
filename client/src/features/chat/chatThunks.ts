@@ -90,6 +90,7 @@ export const sendMessageThunk = createAsyncThunk<
           signal: controller.signal,
           history: historyForAgent,
           correlationId,
+          isAuthenticated: state.auth.isAuthenticated,
           onChunk: (chunk) => {
             assistantContent += chunk;
 

@@ -19,12 +19,14 @@ export async function* runAgent({
   callLLM,
   signal,
   correlationId,
+  isAuthenticated = false,
 }: {
   userInput: string;
   history?: Message[];
   callLLM: CallLLM;
   signal?: AbortSignal;
   correlationId?: string;
+  isAuthenticated?: boolean;
 }): AsyncGenerator<AgentUpdate, AgentResult> {
   //log.info('Starting agent with input', { correlationId, userInput });
 
@@ -66,14 +68,16 @@ export async function* runAgent({
       }
     }
 
-    const memory = await memoryCapture({
-      userInput,
-      signal,
-      correlationId,
-      callLLM,
-    });
-    if (memory) {
-      memoryStore.add(memory.key, memory.value);
+    if (isAuthenticated) {
+      const memory = await memoryCapture({
+        userInput,
+        signal,
+        correlationId,
+        callLLM,
+      });
+      if (memory) {
+        memoryStore.add(memory.key, memory.value);
+      }
     }
     //log.info('memoryStore', { correlationId, memory: memoryStore.getAll() });
     return { done: true, result: final };
