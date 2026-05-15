@@ -83,7 +83,7 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
   },
   {
     id: 'product_features',
-    keywords: ['features', 'capabilities', 'can it', 'does it support', 'tools', 'memory'],
+    keywords: ['features', 'capabilities', 'can it', 'does it support', 'tools', 'memory', 'what can you do', 'what do you do', 'do for me', 'actually do'],
     category: 'product',
     content:
       'Key features: real-time streaming chat, a ReAct agent with tool use, persistent memory across sessions, conversation history, abort/cancel in-flight requests, and a critic pass that evaluates response quality before finalizing.',

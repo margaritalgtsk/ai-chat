@@ -20,21 +20,28 @@ Do NOT search.
 Do NOT continue reasoning.
 Do NOT output JSON.
 
-Use the information below to answer the user.
-
-CRITICAL: Use ONLY facts and numbers from the agent steps observations. Do NOT invent, approximate, or paraphrase numerical data (temperatures, prices, times, etc.) — quote them exactly as they appear. For time-sensitive questions (weather, news, events), include the specific date in your answer.
-
-If observations say "No results found" or contain no useful information, respond in a friendly, helpful way: acknowledge you don't have that information and suggest what the user could do instead (e.g. ask a different question, provide more context). Do NOT repeat the technical observation text.
-
 User message:
 ${userInput}
 
 Conversation history:
 ${historyText}
 
-Agent steps:
+${agentSteps.length ? `Agent steps (use ONLY this data to answer):
 ${JSON.stringify(agentSteps, null, 2)}
 
-Write the final answer for the user, using only the data from the observations above.
+CRITICAL: Do NOT invent or paraphrase numerical data — quote it exactly as it appears in observations.
+If observations say "No results found":
+- If the action type was "memory": tell the user you haven't stored that yet, but you CAN remember things across sessions — invite them to share the information now.
+- Otherwise: tell the user you don't have that information in a friendly way and suggest they try a different question.
+Do NOT repeat the technical observation text.
+
+Write the final answer using only the data from the observations above.`
+: `No tools were called. Answer directly based on the user message and conversation history above.
+
+Your available tools (use this to answer capability questions):
+- webSearch: search the internet for current events, news, general knowledge
+- knowledgeSearch: search internal knowledge about the team, company, and product
+- time: get the current date and time
+- memory: remember and recall information about the user across sessions`}
 `;
 }
