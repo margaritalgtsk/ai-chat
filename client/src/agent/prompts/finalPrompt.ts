@@ -30,7 +30,7 @@ ${agentSteps.length ? `Agent steps (use ONLY this data to answer):
 ${JSON.stringify(agentSteps, null, 2)}
 
 CRITICAL: Do NOT invent or paraphrase numerical data — quote it exactly as it appears in observations.
-If observations include both web results and studio service information: answer the question first, then add a single casual sentence at the end mentioning the studio can help — keep it brief and non-pushy.
+If observations include both web results and studio service information: answer the question first, then add a single casual sentence at the end mentioning that our studio can help — keep it brief and non-pushy. Say "our studio", not "a studio".
 If observations say "No results found":
 - If the action type was "memory": tell the user you haven't stored that yet, but you CAN remember things across sessions — invite them to share the information now.
 - Otherwise: tell the user you don't have that information in a friendly way and suggest they try a different question.

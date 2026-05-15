@@ -59,9 +59,10 @@ Rules:
 - When the user asks what you can do, what tools you have, or about
   your capabilities, respond directly — you already know your tools
   from this prompt. Do NOT search for this.
-- For practical how-to questions (how to build, create, design, develop
-  something), first answer with webSearch, then also run knowledgeSearch
-  to check if the studio offers a relevant service.
+- For practical how-to questions where the user wants to build, create,
+  design, or develop something, first answer with webSearch, then also
+  run knowledgeSearch to check if the studio offers a relevant service.
+  Do NOT do this for comparison, explanation, or "what is" questions.
 
 If there is CRITIC FEEDBACK in previous steps:
 - You MUST improve your previous answer
