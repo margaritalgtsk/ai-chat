@@ -20,7 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getChatErrorType } from './utils/getChatErrorType';
 import { streamChatResponse } from './chatStreamResponse';
 import { MAX_RETRIES } from './constants';
-import { log } from '../../observability/logger';
+//import { log } from '../../observability/logger';
 import { streamRegistry } from '../../dev/activeStreams';
 import { callLLM } from '../../services/llm/callLLM';
 
@@ -42,13 +42,11 @@ export const sendMessageThunk = createAsyncThunk<
   const activeSession = selectActiveSession(state);
   const history = activeSession?.messages ?? [];
 
-  // не берём последнее сообщение, если оно от assistant
   const historyWithoutLastAssistant =
     history.length > 0 && history[history.length - 1].role === 'assistant'
       ? history.slice(0, -1)
       : history;
 
-  // берём только последние 10
   const historyForAgent = historyWithoutLastAssistant.slice(-10);
 
   const controller = createChatAbortController(sessionId);
@@ -76,11 +74,11 @@ export const sendMessageThunk = createAsyncThunk<
     retryAttempt: 0,
   });
 
-  log.info('Start streaming', {
+  /*   log.info('Start streaming', {
     sessionId,
     messageId: aiMessage.id,
     correlationId,
-  });
+  }); */
 
   try {
     for (let attempt = 0; attempt <= 1; attempt++) {
@@ -95,10 +93,10 @@ export const sendMessageThunk = createAsyncThunk<
           onChunk: (chunk) => {
             assistantContent += chunk;
 
-            log.debug('Chunk received', {
+            /*             log.debug('Chunk received', {
               correlationId,
               length: chunk.length,
-            });
+            }); */
 
             thunkApi.dispatch(
               updateAssistantMessage({
@@ -130,11 +128,11 @@ export const sendMessageThunk = createAsyncThunk<
             thunkApi.dispatch(setSessionTitle({ sessionId, title }));
           });
         }
-        log.info('Stream completed successfully', {
+        /*         log.info('Stream completed successfully', {
           sessionId,
           messageId: aiMessage.id,
           correlationId,
-        });
+        }); */
         return;
       } catch (error) {
         const errorType = getChatErrorType(error);
@@ -153,11 +151,11 @@ export const sendMessageThunk = createAsyncThunk<
             })
           );
           streamRegistry.retry(correlationId, attempt + 1);
-          log.warn('Retry streaming', {
+          /*           log.warn('Retry streaming', {
             sessionId,
             messageId: aiMessage.id,
             attempt,
-          });
+          }); */
           await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt)));
           continue;
         }
@@ -175,11 +173,11 @@ export const sendMessageThunk = createAsyncThunk<
         })
       );
       streamRegistry.abort(correlationId);
-      log.info('Stream aborted by user', {
+      /*       log.info('Stream aborted by user', {
         correlationId,
         sessionId,
         messageId: aiMessage.id,
-      });
+      }); */
     } else {
       thunkApi.dispatch(
         markAssistantMessageError({
@@ -188,16 +186,16 @@ export const sendMessageThunk = createAsyncThunk<
           errorType,
         })
       );
-      log.error('Streaming failed', {
+      /*       log.error('Streaming failed', {
         sessionId,
         messageId: aiMessage.id,
         error,
-      });
+      }); */
     }
     throw error;
   } finally {
     abortChatStream(sessionId);
-    log.debug('Chat stream cleaned up', { sessionId });
+    //log.debug('Chat stream cleaned up', { sessionId });
     streamRegistry.end(correlationId);
   }
 });

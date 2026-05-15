@@ -1,4 +1,4 @@
-import { log } from '../../observability/logger';
+//import { log } from '../../observability/logger';
 import type { CallLLM } from '../../services/llm/callLLM';
 import { memoryCapturePrompt } from '../prompts/memoryCapturePrompt';
 import { extractJSON } from '../utils/json';
@@ -21,9 +21,9 @@ export const memoryCapture = async ({
   });
 
   const memoryJson = extractJSON(extractionCall);
-  if (!memoryJson) return null; //check
+  if (!memoryJson) return null;
 
   const memory = JSON.parse(memoryJson);
-  log.info('Memory captured', { correlationId, memory });
+  //log.info('Memory captured', { correlationId, memory });
   return memory;
 };

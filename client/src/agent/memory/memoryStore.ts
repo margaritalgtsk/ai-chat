@@ -21,13 +21,8 @@ class MemoryStore {
   }
 
   search(query: string): MemoryEntry[] {
-    //const q = query.toLowerCase();
     const tokens = query.toLowerCase().split(/\s+/);
 
-    /*     return this.memory.filter(
-      (m) =>
-        m.key.toLowerCase().includes(q) || m.value.toLowerCase().includes(q)
-    ); */
     return this.memory.filter((m) => {
       const text = `${m.key} ${m.value}`.toLowerCase();
 

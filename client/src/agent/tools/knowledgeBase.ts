@@ -37,6 +37,13 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
     content:
       'Ivan Korolev is the mobile developer on the team. He builds cross-platform apps with React Native and has shipped apps on both iOS and Android. He also contributes to the frontend on web projects.',
   },
+  {
+    id: 'team_overview',
+    keywords: ['team', 'team members', 'who', 'staff', 'people', 'everyone', 'crew'],
+    category: 'people',
+    content:
+      'The studio team consists of four people: Alina Semenova (founder & lead developer), Max Petrov (UI/UX designer), Sofia Chen (backend engineer & DevOps lead), and Ivan Korolev (mobile developer).',
+  },
   // Company
   {
     id: 'company_location',

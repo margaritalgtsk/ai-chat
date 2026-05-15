@@ -48,6 +48,7 @@ Rules:
 - NEVER repeat the same search query.
 - Maximum searches allowed: 3.
 - Prefer responding over searching again.
+- If an observation says "No results found", do NOT search again — choose respond immediately.
 
 If there is CRITIC FEEDBACK in previous steps:
 - You MUST improve your previous answer

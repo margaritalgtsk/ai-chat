@@ -6,8 +6,8 @@ export const abortChatStream = (sessionId: string) => {
 };
 
 export const createChatAbortController = (sessionId: string) => {
-  abortChatStream(sessionId); //?
+  abortChatStream(sessionId);
   const controller = new AbortController();
   chatAbortControllers.set(sessionId, controller);
-  return controller; //Why not chatAbortControllers
+  return controller;
 };
