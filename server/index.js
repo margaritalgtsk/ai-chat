@@ -41,6 +41,9 @@ app.post("/api/chat", async (req, res) => {
     res.end();
   } catch (err) {
     console.error("Groq Error:", err);
+    if (err?.error?.code === "rate_limit_exceeded") {
+      return res.status(429).json({ error: "rate_limit", message: err.error.message });
+    }
     res.status(500).send("Error on server");
   }
 });

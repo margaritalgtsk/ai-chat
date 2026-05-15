@@ -9,7 +9,6 @@ type ActiveStream = {
 };
 
 const activeStreams = new Map<string, ActiveStream>();
-// key = correlationId
 
 export const streamRegistry = {
   start(stream: ActiveStream) {
@@ -25,7 +24,6 @@ export const streamRegistry = {
   },
 
   end(correlationId: string) {
-    //activeStreams.delete(correlationId);
     const stream = activeStreams.get(correlationId);
     if (stream) {
       stream.status = 'ended';
@@ -34,7 +32,6 @@ export const streamRegistry = {
   },
 
   abort(correlationId: string) {
-    //activeStreams.delete(correlationId);
     const stream = activeStreams.get(correlationId);
     if (stream) {
       stream.status = 'aborted';

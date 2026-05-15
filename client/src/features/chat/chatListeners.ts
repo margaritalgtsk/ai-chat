@@ -4,14 +4,13 @@ import { abortChatStream } from './chatAbortControllers';
 import type { RootState } from '../../store/store';
 import { sendMessageThunk } from './chatThunks';
 import { saveChatHistory } from '../../storage';
-import { createNewChat, selectSession } from './chatSlice';
-import { log } from '../../observability/logger';
+import { createNewChat, deleteSession, selectSession } from './chatSlice';
+//import { log } from '../../observability/logger';
 
 export const chatListener = createListenerMiddleware();
 
 chatListener.startListening({
   matcher: isAnyOf(selectSession, createNewChat),
-  //effect: async (action, listenerApi) => {
   effect: async (_, listenerApi) => {
     const state = listenerApi.getOriginalState() as RootState;
     const prevSessionId = state.chat.activeSessionId;
@@ -19,15 +18,16 @@ chatListener.startListening({
       abortChatStream(prevSessionId);
     }
 
-    log.warn('Abort stream on session change', {
+    /*     log.warn('Abort stream on session change', {
       sessionId: prevSessionId,
-    });
+    }); */
   },
 });
 
 chatListener.startListening({
   matcher: isAnyOf(
     createNewChat,
+    deleteSession,
     sendMessageThunk.fulfilled,
     sendMessageThunk.rejected
   ),

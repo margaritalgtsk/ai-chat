@@ -1,5 +1,5 @@
 import { runAgent } from '../../agent/agentRunner';
-import { log } from '../../observability/logger';
+//import { log } from '../../observability/logger';
 import { callLLM } from '../../services/llm/callLLM';
 import type { Message } from '../../types';
 import { mockChatStream } from './mockChatStream';
@@ -10,6 +10,7 @@ export const streamChatResponse = async ({
   signal,
   history,
   correlationId,
+  isAuthenticated,
   onChunk,
   onUpdate,
 }: {
@@ -17,10 +18,11 @@ export const streamChatResponse = async ({
   signal: AbortSignal;
   history: Message[];
   correlationId: string;
+  isAuthenticated: boolean;
   onChunk: (chunk: string) => void;
   onUpdate: (update: AgentUpdate) => void;
 }) => {
-  log.info('Stream opened', { correlationId });
+  //log.info('Stream opened', { correlationId });
 
   if (import.meta.env.VITE_MOCK_CHAT_STREAM === 'true') {
     await mockChatStream({ onChunk, signal });
@@ -33,6 +35,7 @@ export const streamChatResponse = async ({
     callLLM,
     correlationId,
     signal,
+    isAuthenticated,
   });
 
   while (true) {

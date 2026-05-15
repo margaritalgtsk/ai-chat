@@ -19,21 +19,22 @@ export async function* runAgent({
   callLLM,
   signal,
   correlationId,
+  isAuthenticated = false,
 }: {
   userInput: string;
   history?: Message[];
   callLLM: CallLLM;
   signal?: AbortSignal;
   correlationId?: string;
+  isAuthenticated?: boolean;
 }): AsyncGenerator<AgentUpdate, AgentResult> {
-  log.info('Starting agent with input', { correlationId, userInput });
+  //log.info('Starting agent with input', { correlationId, userInput });
 
   const agentContext = {
     userInput,
     callLLM,
     signal,
     correlationId,
-    //memory: new MemoryStore(),
   };
   let postCriticSteps = 0;
   const agentSteps: AgentStep[] = [];
@@ -67,26 +68,28 @@ export async function* runAgent({
       }
     }
 
-    const memory = await memoryCapture({
-      userInput,
-      signal,
-      correlationId,
-      callLLM,
-    });
-    if (memory) {
-      memoryStore.add(memory.key, memory.value);
+    if (isAuthenticated) {
+      const memory = await memoryCapture({
+        userInput,
+        signal,
+        correlationId,
+        callLLM,
+      });
+      if (memory) {
+        memoryStore.add(memory.key, memory.value);
+      }
     }
-    log.info('memoryStore', { correlationId, memory: memoryStore.getAll() });
+    //log.info('memoryStore', { correlationId, memory: memoryStore.getAll() });
     return { done: true, result: final };
   }
 
   for (let step = 0; step < MAX_STEPS; step++) {
     yield 'thinking';
-    log.info('Agent step', { correlationId, step, ...agentSteps });
-    log.info('Current memory store', {
+    log.info(`Agent step ${step}`, { correlationId, step, ...agentSteps });
+    /*     log.info('Current memory store', {
       correlationId,
       memory: memoryStore.getAll(),
-    });
+    }); */
 
     const searchCount = agentSteps.filter(
       (s) =>
@@ -105,7 +108,7 @@ export async function* runAgent({
       history,
       agentSteps,
     });
-    log.info('Generated reasoning prompt', { correlationId, reasoningPrompt });
+    //log.info('Generated reasoning prompt', { correlationId, reasoningPrompt });
 
     const reasoningCall = await callLLM({
       text: reasoningPrompt,
@@ -154,13 +157,13 @@ export async function* runAgent({
     const toolResult = await toolExecution(decision.action);
     if (toolResult.success) {
       yield 'search_result';
-      agentSteps.push({
-        thought: decision.thought,
-        action: decision.action,
-        observations: toolResult.result ?? 'Tool failed',
-      });
-      continue;
     }
+    agentSteps.push({
+      thought: decision.thought,
+      action: decision.action,
+      observations: toolResult.result ?? 'No results found.',
+    });
+    continue;
   }
   log.warn('Agent reached maximum steps without finalizing', { correlationId });
   return {

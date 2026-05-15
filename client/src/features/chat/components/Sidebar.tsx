@@ -115,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <button
           className={styles.signinButton}
           onClick={() => loginWithRedirect()}
-          data-tooltip="Sign in to save chat history"
+          data-tooltip="Sign in to save chat history and memory"
         >
           Sign in
         </button>

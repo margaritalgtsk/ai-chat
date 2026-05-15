@@ -17,9 +17,7 @@ interface ChatState {
 
 const initialState: ChatState = {
   sessions: [{ id: 'default', messages: [] }],
-  //sessions: loadChatHistory(),
   activeSessionId: 'default',
-  //activeSessionId: loadChatHistory()[0]?.id || '',
 };
 
 export const chatSlice = createSlice({
@@ -63,7 +61,7 @@ export const chatSlice = createSlice({
         (s) => s.id === action.payload.sessionId
       );
       if (!session) return;
-      session.messages = [...session.messages, ...action.payload.messages]; //check solution
+      session.messages = [...session.messages, ...action.payload.messages];
     },
     updateAssistantMessage: (
       state,

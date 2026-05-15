@@ -37,6 +37,13 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
     content:
       'Ivan Korolev is the mobile developer on the team. He builds cross-platform apps with React Native and has shipped apps on both iOS and Android. He also contributes to the frontend on web projects.',
   },
+  {
+    id: 'team_overview',
+    keywords: ['team', 'team members', 'who', 'staff', 'people', 'everyone', 'crew'],
+    category: 'people',
+    content:
+      'The studio team consists of four people: Alina Semenova (founder & lead developer), Max Petrov (UI/UX designer), Sofia Chen (backend engineer & DevOps lead), and Ivan Korolev (mobile developer).',
+  },
   // Company
   {
     id: 'company_location',
@@ -47,7 +54,7 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
   },
   {
     id: 'company_services',
-    keywords: ['services', 'offers', 'what do you do', 'consulting', 'development', 'hire', 'work'],
+    keywords: ['services', 'offers', 'what do you do', 'consulting', 'development', 'hire', 'work', 'looking for a developer', 'need a developer', 'find a developer', 'looking for help'],
     category: 'company',
     content:
       'The studio offers custom software development, UI/UX design, technical consulting, and AI integration. Typical engagements include web apps, mobile apps, API design, and AI-powered features. Project-based and retainer contracts are available.',
@@ -76,7 +83,7 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
   },
   {
     id: 'product_features',
-    keywords: ['features', 'capabilities', 'can it', 'does it support', 'tools', 'memory'],
+    keywords: ['features', 'capabilities', 'can it', 'does it support', 'tools', 'memory', 'what can you do', 'what do you do', 'do for me', 'actually do'],
     category: 'product',
     content:
       'Key features: real-time streaming chat, a ReAct agent with tool use, persistent memory across sessions, conversation history, abort/cancel in-flight requests, and a critic pass that evaluates response quality before finalizing.',
@@ -84,7 +91,7 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
   // Tech
   {
     id: 'tech_stack',
-    keywords: ['stack', 'technology', 'built with', 'groq', 'llm', 'model', 'vite'],
+    keywords: ['stack', 'technology', 'built with', 'groq', 'llm', 'model', 'vite', 'built', 'how is this', 'how was this', 'architecture', 'how it works'],
     category: 'tech',
     content:
       'Frontend: React 19, TypeScript, Redux Toolkit, Vite. Backend: Node.js, Express, Groq API (llama-3.3-70b-versatile). Agent: custom ReAct loop running entirely client-side with Zod schema validation.',
