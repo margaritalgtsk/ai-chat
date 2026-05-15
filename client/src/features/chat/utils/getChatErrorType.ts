@@ -8,7 +8,10 @@ export const getChatErrorType = (error: unknown): ChatErrorType => {
     return 'network';
   }
   if (error instanceof Error) {
-    if (error.message === 'RATE_LIMIT' || error.message === 'Server error') {
+    if (error.message === 'RATE_LIMIT') {
+      return 'rate_limit';
+    }
+    if (error.message === 'Server error') {
       return 'server';
     }
   }

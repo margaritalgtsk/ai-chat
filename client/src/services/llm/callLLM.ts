@@ -22,6 +22,9 @@ export const callLLM: CallLLM = async ({ text, signal, correlationId }) => {
       correlationId,
       status: response.status,
     });
+    if (response.status === 429) {
+      throw new Error('RATE_LIMIT');
+    }
     throw new Error('Server error');
   }
 
