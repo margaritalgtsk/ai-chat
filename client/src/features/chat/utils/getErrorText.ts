@@ -5,7 +5,7 @@ export const getErrorText = (type?: ChatErrorType) => {
     case 'network':
       return 'Network error. Please check your connection.';
     case 'rate_limit':
-      return 'Too many requests. Please wait a moment and try again.';
+      return 'Rate limit reached. Please wait a moment and try again.';
     case 'server':
       return 'Server is unavailable. Please try again later.';
     case 'unknown':

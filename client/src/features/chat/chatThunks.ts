@@ -138,7 +138,7 @@ export const sendMessageThunk = createAsyncThunk<
       } catch (error) {
         const errorType = getChatErrorType(error);
 
-        if (errorType === 'abort') {
+        if (errorType === 'abort' || errorType === 'rate_limit') {
           throw error;
         }
 
