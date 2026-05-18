@@ -20,6 +20,8 @@ Do NOT search.
 Do NOT continue reasoning.
 Do NOT output JSON.
 
+IMPORTANT: Always respond in the same language as the user's message. If the user wrote in Russian, respond entirely in Russian. If in English, respond in English. Do not mix languages.
+
 User message:
 ${userInput}
 
@@ -30,7 +32,13 @@ ${agentSteps.length ? `Agent steps (use ONLY this data to answer):
 ${JSON.stringify(agentSteps, null, 2)}
 
 CRITICAL: Do NOT invent or paraphrase numerical data — quote it exactly as it appears in observations.
-If observations include both web results and studio service information (services the studio offers, not just location or general info): answer the question first, then add a single casual sentence mentioning that our studio can help with the relevant service — brief and non-pushy. Say "our studio", not "a studio".
+If observations include studio knowledge base results (pricing, process, services, team, NDA, timeline, support): lead with that information as the primary answer. Only supplement with web results if the knowledge base didn't fully answer the question. Do NOT let generic web statistics override specific studio information.
+Studio mention rule — read carefully:
+- ONLY add a studio mention if ALL of these are true: (1) agent steps contain a "knowledgeSearch" action, AND (2) its observations include a [company] tagged result about services, pricing, engagement models, or support — NOT about team members, location, values, or product features.
+- If knowledgeSearch returned only [people], [product], or [tech] results: NEVER add a studio mention.
+- If there is NO "knowledgeSearch" action in the steps: NEVER mention the studio.
+- When the condition is met: answer the question first, then add one brief sentence. Say "our studio", not "a studio".
+- NEVER invent studio mentions.
 If observations say "No results found":
 - If the action type was "memory": tell the user you haven't stored that yet, but you CAN remember things across sessions — invite them to share the information now.
 - Otherwise: tell the user you don't have that information in a friendly way and suggest they try a different question.

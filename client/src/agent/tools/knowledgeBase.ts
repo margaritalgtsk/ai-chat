@@ -73,6 +73,69 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
     content:
       'The studio values simplicity, transparency, and iterative delivery. We ship working software early and refine based on feedback. We avoid over-engineering and prefer pragmatic solutions over theoretical perfection.',
   },
+  {
+    id: 'company_pricing',
+    keywords: ['price', 'pricing', 'cost', 'how much', 'rates', 'hourly rate', 'budget', 'expensive', 'cheap', 'affordable', 'fee', 'charge', 'quote', 'estimate'],
+    category: 'company',
+    content:
+      'Pricing depends on project scope and engagement model. Hourly rates range from $60–$120/hour depending on the specialist. A typical small web app (4–8 weeks) starts at $8,000–$15,000. Fixed-price quotes are available after a paid discovery phase. We provide a detailed estimate before any commitment.',
+  },
+  {
+    id: 'company_timeline',
+    keywords: ['timeline', 'how long', 'duration', 'deadline', 'when', 'delivery', 'turnaround', 'time to build', 'how fast', 'schedule', 'mobile app', 'web app', 'application', 'app development', 'build an app'],
+    category: 'company',
+    content:
+      'Project timelines vary by scope: a landing page or MVP takes 2–4 weeks, a full web or mobile app typically 6–16 weeks. Complex platforms with integrations can take 3–6 months. We share a detailed project plan with milestones before kickoff and provide weekly progress updates.',
+  },
+  {
+    id: 'company_process',
+    keywords: ['process', 'workflow', 'how do you work', 'methodology', 'steps', 'phases', 'discovery', 'sprint', 'agile', 'kickoff', 'what happens next'],
+    category: 'company',
+    content:
+      'Our process: 1) Discovery — we clarify requirements, define scope, and produce a technical spec (1–2 weeks). 2) Design — wireframes and UI mockups for approval. 3) Development — iterative sprints with regular demos. 4) QA & Delivery — testing, staging deploy, client acceptance. 5) Handoff — documentation, source code, and optional support contract.',
+  },
+  {
+    id: 'company_engagement_models',
+    keywords: ['fixed price', 'time and material', 'retainer', 'contract type', 'billing', 'payment model', 'monthly', 'hourly', 'dedicated team'],
+    category: 'company',
+    content:
+      'We offer three engagement models: Fixed Price — best for well-defined projects with a clear spec; Time & Material — best for evolving scope, billed monthly by actual hours; Retainer — a set number of hours per month for ongoing feature work or support. We recommend Fixed Price for MVPs and T&M for long-term product development.',
+  },
+  {
+    id: 'company_portfolio',
+    keywords: ['portfolio', 'examples', 'case studies', 'previous work', 'past projects', 'clients', 'references', 'showcase', 'samples'],
+    category: 'company',
+    content:
+      'We have delivered projects across SaaS platforms, marketplace apps, internal tools, and AI-powered products. Case studies are available on request — we share relevant examples that match your industry or tech stack. Contact us at hello@studio.dev to request a portfolio review call.',
+  },
+  {
+    id: 'company_nda',
+    keywords: ['nda', 'non-disclosure', 'confidentiality', 'ip', 'intellectual property', 'ownership', 'source code ownership', 'privacy', 'secure'],
+    category: 'company',
+    content:
+      'We sign NDAs before any project discussion upon request. All source code and intellectual property developed for a client is fully transferred to the client upon final payment. We do not reuse client-specific code in other projects.',
+  },
+  {
+    id: 'company_industries',
+    keywords: ['industry', 'industries', 'sector', 'domain', 'fintech', 'healthcare', 'e-commerce', 'startup', 'enterprise', 'experience in', 'worked with'],
+    category: 'company',
+    content:
+      'We have experience across multiple industries: fintech (payment flows, dashboards), e-commerce (marketplaces, custom storefronts), SaaS (B2B tools, subscription platforms), healthcare (patient portals, scheduling), and internal enterprise tools. We adapt quickly to new domains — a short discovery phase is enough to get up to speed.',
+  },
+  {
+    id: 'company_support',
+    keywords: ['support', 'maintenance', 'after delivery', 'post-launch', 'bug fix', 'updates', 'ongoing', 'long-term', 'warranty'],
+    category: 'company',
+    content:
+      'After delivery, we offer a 30-day warranty period covering bugs related to our work at no extra charge. For ongoing support, we offer monthly retainer plans starting at 10 hours/month. This covers bug fixes, minor updates, dependency upgrades, and monitoring. Support contracts can be cancelled with 30 days notice.',
+  },
+  {
+    id: 'company_start',
+    keywords: ['get started', 'start', 'next steps', 'how to hire', 'onboarding', 'first step', 'begin', 'kick off', 'ready to start', 'interested'],
+    category: 'company',
+    content:
+      'To get started: 1) Send a brief project description to hello@studio.dev or fill out the contact form on our website. 2) We schedule a free 30-minute discovery call to understand your goals. 3) We send a scope estimate and proposal within 3 business days. 4) Once approved, we sign a contract and kick off the discovery phase. No commitment required until the proposal is signed.',
+  },
   // Product
   {
     id: 'product_ai_chat',
