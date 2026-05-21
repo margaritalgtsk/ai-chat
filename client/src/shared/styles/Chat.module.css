@@ -42,6 +42,12 @@
   gap: 12px;
 }
 
+.sessionList {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 .sidebarLogo {
   width: 52px;
   height: 52px;
