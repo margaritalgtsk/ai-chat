@@ -7,7 +7,12 @@ export type MessageStatus =
   | 'abort'
   | 'error';
 
-export type ChatErrorType = 'abort' | 'network' | 'server' | 'rate_limit' | 'unknown';
+export type ChatErrorType =
+  | 'abort'
+  | 'network'
+  | 'server'
+  | 'rate_limit'
+  | 'unknown';
 
 export interface Message {
   id: string;
@@ -21,6 +26,7 @@ export interface Message {
   errorType?: ChatErrorType;
   correlationId?: string;
   agentUpdates?: AgentUpdate;
+  slowResponseStage?: 'warming' | 'still_warming';
 }
 
 export interface ChatSession {

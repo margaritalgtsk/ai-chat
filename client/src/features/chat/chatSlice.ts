@@ -100,6 +100,24 @@ export const chatSlice = createSlice({
       if (!message || message.role !== 'assistant') return;
       message.agentUpdates = action.payload.update;
     },
+    setSlowResponseStage: (
+      state,
+      action: PayloadAction<{
+        sessionId: string;
+        messageId: string;
+        stage: 'warming' | 'still_warming' | undefined;
+      }>
+    ) => {
+      const session = state.sessions.find(
+        (s) => s.id === action.payload.sessionId
+      );
+      if (!session) return;
+      const message = session.messages.find(
+        (m) => m.id === action.payload.messageId
+      );
+      if (!message || message.role !== 'assistant') return;
+      message.slowResponseStage = action.payload.stage;
+    },
     finalizeAssistantMessage: (
       state,
       action: PayloadAction<{ sessionId: string; messageId: string }>
@@ -224,6 +242,7 @@ export const {
   addMessages,
   updateAssistantMessage,
   addAgentUpdate,
+  setSlowResponseStage,
   finalizeAssistantMessage,
   setAssistantMessageRetry,
   markAssistantMessageAborted,

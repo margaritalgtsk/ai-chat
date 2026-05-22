@@ -9,6 +9,7 @@ import {
   selectActiveSession,
   setAssistantMessageRetry,
   setSessionTitle,
+  setSlowResponseStage,
   updateAssistantMessage,
 } from './chatSlice';
 import type { Message } from '../../types';
@@ -80,7 +81,29 @@ export const sendMessageThunk = createAsyncThunk<
     correlationId,
   }); */
 
+  const warmingTimer = setTimeout(() => {
+    thunkApi.dispatch(
+      setSlowResponseStage({
+        sessionId,
+        messageId: aiMessage.id,
+        stage: 'warming',
+      })
+    );
+  }, 5000);
+
+  const stillWarmingTimer = setTimeout(() => {
+    thunkApi.dispatch(
+      setSlowResponseStage({
+        sessionId,
+        messageId: aiMessage.id,
+        stage: 'still_warming',
+      })
+    );
+  }, 25000);
+
   try {
+    let firstChunkArrived = false;
+
     for (let attempt = 0; attempt <= 1; attempt++) {
       try {
         let assistantContent = '';
@@ -92,6 +115,20 @@ export const sendMessageThunk = createAsyncThunk<
           correlationId,
           isAuthenticated: state.auth.isAuthenticated,
           onChunk: (chunk) => {
+            //reset timers on first chunk
+            if (!firstChunkArrived) {
+              firstChunkArrived = true;
+              clearTimeout(warmingTimer);
+              clearTimeout(stillWarmingTimer);
+              thunkApi.dispatch(
+                setSlowResponseStage({
+                  sessionId,
+                  messageId: aiMessage.id,
+                  stage: undefined,
+                })
+              );
+            }
+
             assistantContent += chunk;
 
             /*             log.debug('Chunk received', {
@@ -196,6 +233,8 @@ export const sendMessageThunk = createAsyncThunk<
     throw error;
   } finally {
     abortChatStream(sessionId);
+    clearTimeout(warmingTimer);
+    clearTimeout(stillWarmingTimer);
     //log.debug('Chat stream cleaned up', { sessionId });
     streamRegistry.end(correlationId);
   }
